@@ -39,8 +39,9 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-b border-gold/15 h-16 flex items-center">
-      <div className="max-w-container mx-auto px-5 flex items-center justify-between w-full">
+    <>
+      <header className="fixed top-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-b border-gold/15 h-16 flex items-center">
+        <div className="max-w-container mx-auto px-5 flex items-center justify-between w-full">
         <Link href="/" className="flex items-baseline gap-2 leading-none group">
           <span className="font-condensed text-xl font-black text-sand-100 tracking-wide uppercase">
             Grúas
@@ -92,6 +93,7 @@ export default function Navbar() {
           {open ? <IconClose className="w-6 h-6" /> : <IconMenu className="w-6 h-6" />}
         </button>
       </div>
+      </header>
 
       {open && (
         <div
@@ -128,6 +130,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
