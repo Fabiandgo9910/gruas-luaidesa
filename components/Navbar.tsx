@@ -24,10 +24,10 @@ export default function Navbar() {
   }, [open]);
 
   return (
-    <header className="fixed top-0 inset-x-0 z-40 bg-brand-black/95 backdrop-blur-md border-b border-gold/15 py-3.5">
+    <header className="fixed top-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-b border-gold/15 py-3.5">
       <div className="max-w-container mx-auto px-5 flex items-center justify-between">
         <Link href="/" className="flex items-baseline gap-2 leading-none group">
-          <span className="font-condensed text-xl font-black text-brand-cream tracking-wide uppercase">
+          <span className="font-condensed text-xl font-black text-sand-100 tracking-wide uppercase">
             Grúas
           </span>
           <span className="font-condensed text-xl font-black text-gold tracking-[0.1em] uppercase">
@@ -40,7 +40,7 @@ export default function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-brand-cream/60 hover:text-gold transition-colors text-[13px] font-medium uppercase tracking-widest"
+              className="text-sand-100/60 hover:text-gold transition-colors text-[13px] font-medium uppercase tracking-widest"
             >
               {item.label}
             </Link>
@@ -51,7 +51,7 @@ export default function Navbar() {
           <a
             href={`tel:${PHONE.replace(/\s/g, "")}`}
             onClick={() => trackPhone("navbar")}
-            className="flex items-center gap-2 text-[13px] font-semibold text-brand-cream/90 border border-gold/25 rounded-full pl-3.5 pr-4 py-2 hover:border-gold hover:text-gold transition-colors"
+            className="flex items-center gap-2 text-[13px] font-semibold text-sand-100/90 border border-gold/25 rounded-full pl-3.5 pr-4 py-2 hover:border-gold hover:text-gold transition-colors"
           >
             <IconPhone className="w-4 h-4" /> {PHONE}
           </a>
@@ -60,7 +60,7 @@ export default function Navbar() {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackWhatsApp("navbar")}
-            className="flex items-center gap-2 text-[13px] font-semibold bg-gold hover:bg-gold-light text-brand-black rounded-full pl-3.5 pr-4 py-2 transition-colors"
+            className="flex items-center gap-2 text-[13px] font-semibold bg-gold hover:bg-gold-light text-ink-900 rounded-full pl-3.5 pr-4 py-2 transition-colors"
           >
             <IconWhatsApp className="w-4 h-4" /> WhatsApp
           </a>
@@ -77,13 +77,13 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="lg:hidden fixed inset-x-0 top-[60px] bottom-0 bg-brand-black/98 backdrop-blur-sm border-t border-gold/15 px-5 py-8 space-y-1 overflow-y-auto">
+        <div className="lg:hidden fixed inset-x-0 top-[60px] bottom-0 bg-ink-900/98 backdrop-blur-sm border-t border-gold/15 px-5 py-8 space-y-1 overflow-y-auto">
           {NAV_LINKS.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="block text-brand-cream/80 hover:text-gold py-3.5 text-xl font-condensed font-bold uppercase tracking-wide border-b border-gold/10"
+              className="block text-sand-100/80 hover:text-gold py-3.5 text-xl font-condensed font-bold uppercase tracking-wide border-b border-gold/10"
             >
               {item.label}
             </Link>
@@ -101,7 +101,7 @@ export default function Navbar() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => { trackWhatsApp("navbar_mobile"); setOpen(false); }}
-              className="flex items-center justify-center gap-2 w-full py-3.5 bg-gold rounded-xl text-brand-black font-semibold"
+              className="flex items-center justify-center gap-2 w-full py-3.5 bg-gold rounded-xl text-ink-900 font-semibold"
             >
               <IconWhatsApp className="w-4 h-4" /> WhatsApp urgente
             </a>

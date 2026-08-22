@@ -9,6 +9,10 @@ const WA_MSG = encodeURIComponent("Hola, necesito una grúa. ¿Podéis ayudarme?
  * Botón flotante de WhatsApp. Solo en escritorio: en móvil ya existe
  * la barra sticky inferior (ver app/page.tsx), y duplicar ambos
  * elementos a la vez tapa contenido en pantallas pequeñas.
+ *
+ * Estilo integrado en la paleta de marca (ink/dorado) en vez del
+ * verde de WhatsApp a pantalla completa, para mantener coherencia
+ * visual con el resto del sitio. El verde queda como acento puntual.
  */
 export default function FloatingWhatsApp() {
   return (
@@ -18,13 +22,13 @@ export default function FloatingWhatsApp() {
       rel="noopener noreferrer"
       onClick={() => trackWhatsApp("flotante")}
       aria-label="Contactar por WhatsApp"
-      className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2.5 bg-[#25D366] text-white pl-4 pr-5 py-3.5 rounded-full shadow-panel hover:bg-[#1fb958] hover:scale-105 transition-all duration-200"
+      className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2.5 bg-ink-900 hover:bg-ink-700 border border-gold/20 hover:border-gold/40 text-sand-100 pl-4 pr-5 py-3.5 rounded-full shadow-panel hover:-translate-y-0.5 transition-all duration-200"
     >
       <span className="relative flex h-2.5 w-2.5">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-white/70 animate-ping-slow" />
-        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white" />
+        <span className="absolute inline-flex h-full w-full rounded-full bg-whatsapp/60 animate-ping-slow" />
+        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-whatsapp" />
       </span>
-      <IconWhatsApp className="w-5 h-5" />
+      <IconWhatsApp className="w-5 h-5 text-whatsapp" />
       <span className="text-sm font-semibold tracking-wide">Escríbenos</span>
     </a>
   );

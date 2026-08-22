@@ -25,7 +25,7 @@ const SERVICIOS = [
 ];
 
 const inputClass =
-  "w-full bg-brand-black/60 border border-gold/20 rounded-xl px-4 py-3 text-brand-cream placeholder-brand-cream/25 focus:outline-none focus:border-gold transition-colors text-sm";
+  "w-full bg-ink-900/60 border border-gold/20 rounded-xl px-4 py-3 text-sand-100 placeholder-sand-100/25 focus:outline-none focus:border-gold transition-colors text-sm";
 const labelClass = "block text-[11px] text-gold-dark font-semibold uppercase tracking-wider mb-1.5";
 
 export default function LeadForm() {
@@ -82,14 +82,14 @@ export default function LeadForm() {
 
   if (status === "success") {
     return (
-      <div className="bg-brand-brown/60 border border-gold/25 rounded-2xl p-8 text-center">
+      <div className="bg-ink-800/60 border border-gold/25 rounded-2xl p-8 text-center">
         <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
           <IconCheck className="w-7 h-7 text-gold" />
         </div>
         <h3 className="font-condensed text-2xl font-bold text-gold-light uppercase mb-2">
           Solicitud recibida
         </h3>
-        <p className="text-brand-cream/60 text-sm leading-relaxed">
+        <p className="text-sand-100/60 text-sm leading-relaxed">
           Te contactamos en los próximos minutos. Si es urgente, llámanos ahora directamente.
         </p>
       </div>
@@ -164,9 +164,9 @@ export default function LeadForm() {
       <div className="flex items-start gap-3">
         <input
           type="checkbox" name="rgpd" id="rgpd" required checked={form.rgpd} onChange={handleChange}
-          className="mt-0.5 w-4 h-4 accent-yellow-600 flex-shrink-0"
+          className="mt-0.5 w-4 h-4 accent-[#C9A227] flex-shrink-0"
         />
-        <label htmlFor="rgpd" className="text-xs text-brand-cream/50 leading-relaxed">
+        <label htmlFor="rgpd" className="text-xs text-sand-100/50 leading-relaxed">
           He leído y acepto la{" "}
           <a href="/politica-privacidad" className="text-gold underline hover:text-gold-light" target="_blank">
             Política de Privacidad
@@ -187,13 +187,13 @@ export default function LeadForm() {
       <button
         type="submit"
         disabled={status === "loading"}
-        className="w-full flex items-center justify-center gap-2 py-4 bg-gold hover:bg-gold-light disabled:opacity-50 disabled:cursor-not-allowed text-brand-black font-condensed font-black text-lg uppercase tracking-wider rounded-xl transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-4 bg-gold hover:bg-gold-light disabled:opacity-50 disabled:cursor-not-allowed text-ink-900 font-condensed font-black text-lg uppercase tracking-wider rounded-xl transition-colors"
       >
         {status === "loading" ? "Enviando..." : (
           <>Solicitar servicio ahora <IconArrowRight className="w-5 h-5" /></>
         )}
       </button>
-      <p className="text-center text-[11px] text-brand-cream/30">
+      <p className="text-center text-[11px] text-sand-100/30">
         * Campos obligatorios. Tus datos se tratan con total confidencialidad.
       </p>
     </form>
