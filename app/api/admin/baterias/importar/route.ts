@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { requireAdmin } from "@/lib/admin-auth";
 import { crearBateriasEnLote, type BateriaInput } from "@/lib/supabase";
+import { revalidarBaterias } from "@/lib/revalidate";
 
 // ============================================================
 // POST /api/admin/baterias/importar
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
     });
 
     const resultado = await crearBateriasEnLote(items);
+    revalidarBaterias();
 
     return NextResponse.json({
       total: items.length,

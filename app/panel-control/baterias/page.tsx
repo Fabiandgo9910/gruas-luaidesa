@@ -11,6 +11,7 @@ export default async function BateriasAdminPage() {
     baterias = await getAllBaterias();
   } catch (err) {
     error = err instanceof Error ? err.message : "Error al cargar las baterías.";
+    console.error("[/panel-control/baterias] Error:", err);
   }
 
   return (

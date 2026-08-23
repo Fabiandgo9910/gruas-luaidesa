@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { eliminarBateriasEnLote } from "@/lib/supabase";
+import { revalidarBaterias } from "@/lib/revalidate";
 
 // POST /api/admin/baterias/bulk-delete — { ids: string[] }
 export async function POST(req: NextRequest) {
@@ -13,6 +14,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No se han indicado baterías a eliminar." }, { status: 400 });
     }
     await eliminarBateriasEnLote(ids);
+    revalidarBaterias();
     return NextResponse.json({ success: true, eliminadas: ids.length });
   } catch (error) {
     console.error("[API /admin/baterias/bulk-delete] Error:", error);

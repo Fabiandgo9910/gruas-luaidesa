@@ -214,6 +214,18 @@ Vercel es la plataforma que crea la misma empresa que hace Next.js — es la opc
 
 Esta parte es nueva: además de la grúa, la web ahora vende e instala baterías de coche a domicilio. Tiene su propia tienda pública y un panel de administración privado para gestionar el catálogo.
 
+### Paso 2ter — Crear el "cubo" (bucket) donde se guardan las fotos
+
+Las fotos de las baterías se suben directamente desde tu ordenador/móvil (ya no hace falta pegar un enlace). Para que esto funcione, necesitas crear un espacio de almacenamiento en Supabase, una sola vez:
+
+1. En tu proyecto de Supabase, ve al menú lateral → **"Storage"**
+2. Haz clic en **"New bucket"**
+3. Nombre exacto: `baterias-imagenes` (tal cual, en minúsculas y con guion)
+4. Activa la opción **"Public bucket"** (para que las fotos se puedan ver en la web sin iniciar sesión)
+5. Haz clic en **"Create bucket"**
+
+Con esto ya está listo — no hace falta tocar nada más aquí.
+
 ### Cómo entrar al panel
 
 El panel **no tiene ningún enlace visible en la web** (a propósito, para que no lo vea un cliente normal). Se accede escribiendo la URL directamente en el navegador:
@@ -245,14 +257,14 @@ Entra con el email y contraseña que creaste en el **Paso 2bis**. Guarda esta UR
 ### Crear una batería manualmente
 
 1. Ve a **Baterías** → **"+ Nueva batería"**
-2. Solo son obligatorios el **Modelo** y la **URL de la imagen**. Marca, amperaje, precio y si tiene Start-Stop son opcionales
-3. Sobre la imagen: como es un enlace (URL), primero tienes que subir la foto a algún sitio que te dé un link directo — por ejemplo, súbela a un servicio de imágenes gratuito, a tu Google Drive/Dropbox en modo público, o pide a tu proveedor de baterías el link de sus fotos de catálogo. Pega ese enlace en el campo
+2. Solo son obligatorios el **Modelo** y la **foto**. Marca, amperaje, precio y si tiene Start-Stop son opcionales
+3. En "Foto de la batería", pulsa el botón y elige la imagen directamente desde tu ordenador o móvil (JPG, PNG, WEBP o GIF, máximo 5 MB) — verás una vista previa al momento
 4. Marca si quieres que se publique ya o la dejas oculta para revisarla después
-5. Pulsa "Crear batería" — aparecerá al momento en `/baterias-coche-madrid` si está publicada
+5. Pulsa "Crear batería" — la imagen se sube automáticamente y la batería aparece **al instante** en el panel y en `/baterias-coche-madrid` si está publicada (ya no hay ningún retraso)
 
 ### Editar, publicar/ocultar o eliminar
 
-- En la tabla de **Baterías**, pulsa **"Editar"** para cambiar cualquier dato
+- En la tabla de **Baterías**, pulsa **"Editar"** para cambiar cualquier dato. Si no seleccionas una foto nueva, se mantiene la que ya tenía
 - Pulsa la pastilla de **"Publicada" / "Oculta"** para alternar si se ve en la tienda sin necesidad de borrarla (útil si se te agota temporalmente)
 - Pulsa **"Eliminar"** para borrarla del todo (pide confirmación)
 
@@ -279,9 +291,11 @@ Esto te ahorra crearlas una por una si tienes muchas.
    - `start_stop` acepta `si` / `no`, `true` / `false`, o `1` / `0`
    - También se aceptan estos nombres alternativos de columna: `imagen_url`, `url_imagen`, `foto` (para la imagen) y `arranque_parada`, `stop_start` (para el Start-Stop)
 
+   > **Sobre la columna "imagen" en el Excel**: a diferencia de crear una batería a mano (donde subes el archivo directamente), en la importación masiva la imagen se indica con una URL — adjuntar 50 fotos distintas dentro de un Excel no es viable. Si no tienes las fotos ya alojadas en algún sitio con enlace directo, la forma más rápida es: sube cada foto una vez a tu bucket de Supabase Storage (Storage → `baterias-imagenes` → "Upload file"), haz clic en el archivo subido → "Get URL" → pega ese enlace en la columna "imagen" del Excel.
+
 3. Sube el archivo y pulsa "Importar"
 4. Verás cuántas se crearon correctamente y, si alguna fila falló, el motivo exacto (por ejemplo "Falta la imagen (obligatorio)")
-5. Todas las importadas se crean **publicadas** por defecto — puedes ocultarlas después si hace falta revisarlas antes
+5. Todas las importadas se crean **publicadas** por defecto y aparecen **al instante** — puedes ocultarlas después si hace falta revisarlas antes
 
 ### El botón de WhatsApp de cada batería
 
@@ -369,9 +383,34 @@ Si quieres un panel visual con estas cifras (por ejemplo, comparar llamadas vs. 
 
 ---
 
-## ✅ Checklist final — no olvides esto antes de dar la web por lanzada
+## 🎯 SEO y posicionamiento local (para salir en Google por "grúa Madrid", "baterías coche Madrid"...)
+
+He reforzado el SEO técnico para que Google entienda bien de qué trata cada página, dónde das servicio, y cómo navega el sitio. Esto es lo que se ha añadido:
+
+- **Datos estructurados (JSON-LD)** en cada página: la empresa, el servicio de grúa, el servicio de baterías, cada producto individual, y las preguntas frecuentes (esto último puede hacer que tus FAQ aparezcan directamente en el buscador de Google, en un desplegable)
+- **Migas de pan** (`Inicio > Baterías de coche > Modelo`) visibles y también en formato que Google entiende, para que sepa cómo se relacionan tus páginas entre sí
+- **Zonas de cobertura reales** (Madrid capital + Alcalá de Henares, Getafe, Leganés, Alcorcón, Móstoles, Fuenlabrada, Parla, Torrejón de Ardoz, Pozuelo de Alarcón, Majadahonda, Las Rozas, Coslada, Rivas-Vaciamadrid, Valdemoro) declaradas en los datos estructurados — esto ayuda a posicionar también en búsquedas del tipo "grúa en Getafe" o "batería coche Alcorcón", no solo "Madrid"
+- Como me confirmaste que no tienes un local físico al que pueda acudir el cliente, **no se muestra ninguna dirección ni coordenadas exactas** — se sigue así la recomendación oficial de Google para negocios de servicio a domicilio (mostrar zona de cobertura, no una dirección de fachada)
+
+### Lo que te toca hacer a ti para posicionar de verdad (esto no lo puede hacer el código solo)
+
+El código ayuda a que Google *entienda* tu web, pero para aparecer arriba en los resultados —sobre todo en el mapa y en búsquedas "cerca de mí"— hace falta esto:
+
+1. **Crea tu Perfil de Empresa en Google** (antes "Google My Business"): ve a [google.com/business](https://www.google.com/business/) → "Gestionar ahora" → elige **"Área de servicio"** (no local físico) → indica las zonas de la lista de arriba → añade tu teléfono, horario 24h, categoría "Servicio de grúa" (y otra ficha o categoría secundaria para baterías si te deja) → sube fotos reales de tus grúas/furgoneta. Esto es probablemente lo que más impacto tiene en aparecer en el mapa de Google
+2. **Pide reseñas** a tus clientes reales tras cada servicio (con el enlace directo que te da tu Perfil de Empresa) — el número y calidad de reseñas es uno de los factores más importantes para el posicionamiento local
+3. **Verifica el sitio en Google Search Console** (ver más abajo en el checklist) y envía el sitemap
+4. **Verifica también en Bing Webmaster Tools** ([bing.com/webmasters](https://www.bing.com/webmasters)) — es gratis y capta parte del tráfico que Google no cubre
+5. Cuando tengas los enlaces de Instagram/Facebook, añádelos en `.env.local` (y en Vercel) como `NEXT_PUBLIC_FACEBOOK_URL` y `NEXT_PUBLIC_INSTAGRAM_URL` — se enlazan automáticamente desde los datos estructurados de la empresa (esto refuerza que Google asocie esos perfiles con tu negocio)
+6. **Consistencia del nombre/teléfono** en todos los sitios donde aparezcas (Google, Páginas Amarillas, directorios locales, redes sociales) — usa siempre exactamente el mismo teléfono y nombre de empresa; Google penaliza las inconsistencias
+
+### Verificar que los datos estructurados no tienen errores
+
+Cada vez que cambies algo relacionado con SEO, puedes comprobar que Google lo interpreta bien aquí: [Rich Results Test de Google](https://search.google.com/test/rich-results) — pega la URL de tu web (o de una ficha de batería) y te dirá si detecta correctamente la empresa, el producto, las preguntas frecuentes, etc.
+
+
 
 - [ ] Ejecutado `supabase/schema.sql` en Supabase y comprobado que existen las tablas `leads` y `baterias`
+- [ ] Creado el bucket **"baterias-imagenes"** en Supabase Storage, marcado como público (Paso 2ter)
 - [ ] Creado tu usuario Super Admin en Supabase → Authentication → Users (Paso 2bis)
 - [ ] Rellenado `.env.local` con tus datos reales, incluidas `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] Configurada tu cuenta de Resend y añadidas `RESEND_API_KEY` y `NOTIFICATION_EMAIL`
@@ -384,6 +423,8 @@ Si quieres un panel visual con estas cifras (por ejemplo, comparar llamadas vs. 
 - [ ] Verificado el sitio en [Google Search Console](https://search.google.com/search-console) para que aparezca en Google
 - [ ] Revisado las páginas legales (`Política de Privacidad`, `Condiciones de Uso`, `Protección de Datos`) con tu gestoría o asesor legal para confirmar razón social, CIF y domicilio fiscal exactos
 - [ ] Activado Google Analytics y comprobado que se ven visitas y eventos en tiempo real (tras aceptar el banner de cookies en tu propia visita)
+- [ ] Creado tu Perfil de Empresa en Google (área de servicio) con las zonas de cobertura y categoría correctas
+- [ ] Comprobados los datos estructurados con el [Rich Results Test de Google](https://search.google.com/test/rich-results) sin errores
 
 ---
 
@@ -467,5 +508,6 @@ gruas-luaidesa/
 - **El email de recuperar contraseña no llega** → revisa spam; si sigue sin llegar, es el límite de envíos del email de prueba de Supabase — conecta un proveedor de email propio en Authentication → Providers → Email para producción
 - **Al importar el Excel me dice que faltan columnas / todas las filas fallan** → confirma que la primera fila del Excel es la cabecera con los nombres de columna (`modelo`, `imagen`, `marca`, `precio`, `amperaje`, `start_stop`) y que no hay filas vacías por encima
 - **Las imágenes de las baterías no se ven** → el campo "imagen" debe ser una URL pública y directa a la foto (que termine en `.jpg`, `.png`, etc. y se pueda abrir sola en el navegador), no un enlace a una carpeta de Drive ni una foto adjunta
-- **El listado de baterías está vacío o da error** → casi siempre es porque la tabla `baterias` no existe todavía en tu Supabase: ve a SQL Editor y ejecuta la parte de `baterias` de `supabase/schema.sql` (ver Paso 2)
+- **El listado de baterías está vacío o error, o tarda en actualizarse** → si sigue vacío, casi siempre es porque la tabla `baterias` no existe todavía en tu Supabase: ejecuta la parte de `baterias` de `supabase/schema.sql` (ver Paso 2). Si el problema es que tarda en aparecer una nueva batería, asegúrate de estar usando la última versión del código (ya corregido: ahora se invalida la caché al instante en cada creación/edición/borrado)
+- **Al crear una batería me dice "bucket not found" o error al subir la imagen** → te falta crear el bucket `baterias-imagenes` en Supabase Storage marcado como público (ver Paso 2ter)
 - **No me llega el email del formulario a Gmail** → revisa que `RESEND_API_KEY` y `NOTIFICATION_EMAIL` estén bien puestas (en local y en Vercel), revisa spam, y comprueba en resend.com → "Logs" si el envío se intentó y qué error dio. Recuerda: aunque el email falle, el lead se guarda igualmente en Supabase

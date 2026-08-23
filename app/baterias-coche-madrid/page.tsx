@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import BateriasStore from "@/components/BateriasStore";
 import { getBateriasPublicadas } from "@/lib/supabase";
 
@@ -30,10 +31,12 @@ export const dynamic = "force-dynamic";
 
 export default async function TiendaBateriasPage() {
   let baterias: Awaited<ReturnType<typeof getBateriasPublicadas>> = [];
+  let error = "";
   try {
     baterias = await getBateriasPublicadas();
-  } catch {
-    baterias = [];
+  } catch (err) {
+    error = err instanceof Error ? err.message : "Error desconocido";
+    console.error("[/baterias-coche-madrid] Error al cargar baterías:", err);
   }
 
   const storeSchema = {
@@ -67,6 +70,7 @@ export default async function TiendaBateriasPage() {
 
       <section className="pt-32 pb-16 bg-sand-100">
         <div className="max-w-container mx-auto px-5">
+          <Breadcrumbs items={[{ label: "Baterías de coche" }]} />
           <p className="text-gold-dark text-xs font-bold uppercase tracking-[4px] mb-3">Tienda de baterías</p>
           <h1 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase text-ink-900 mb-5">
             Baterías de coche <span className="text-gold">a domicilio en Madrid</span>
@@ -80,7 +84,13 @@ export default async function TiendaBateriasPage() {
 
       <section className="py-14 sm:py-16 bg-ink-900 min-h-[50vh]">
         <div className="max-w-container mx-auto px-5">
-          <BateriasStore baterias={baterias} />
+          {error ? (
+            <div className="bg-red-900/20 border border-red-500/30 rounded-2xl p-6 text-red-300 text-sm">
+              No se ha podido cargar el catálogo en este momento. Vuelve a intentarlo en unos minutos.
+            </div>
+          ) : (
+            <BateriasStore baterias={baterias} />
+          )}
         </div>
       </section>
     </main>

@@ -16,10 +16,20 @@ export default function BateriaForm({ bateria }: { bateria?: Bateria }) {
   const [amperaje, setAmperaje] = useState(bateria?.amperaje?.toString() || "");
   const [precio, setPrecio] = useState(bateria?.precio?.toString() || "");
   const [startStop, setStartStop] = useState(bateria?.start_stop || false);
-  const [imagenUrl, setImagenUrl] = useState(bateria?.imagen_url || "");
   const [publicado, setPublicado] = useState(bateria?.publicado ?? true);
+
+  const [imagenFile, setImagenFile] = useState<File | null>(null);
+  const [imagenPreview, setImagenPreview] = useState<string>(bateria?.imagen_url || "");
+
   const [loading, setLoading] = useState(false);
+  const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [error, setError] = useState("");
+
+  const handleArchivo = (file: File | null) => {
+    setImagenFile(file);
+    if (file) setImagenPreview(URL.createObjectURL(file));
+    else setImagenPreview(bateria?.imagen_url || "");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +39,31 @@ export default function BateriaForm({ bateria }: { bateria?: Bateria }) {
       setError("El modelo es obligatorio.");
       return;
     }
-    if (!imagenUrl.trim()) {
-      setError("La imagen es obligatoria (URL de la imagen).");
+    if (!imagenFile && !bateria?.imagen_url) {
+      setError("La imagen es obligatoria.");
       return;
     }
 
     setLoading(true);
     try {
+      let imagenUrl = bateria?.imagen_url || "";
+
+      // Si se ha elegido un archivo nuevo, se sube primero al Storage
+      // de Supabase y se usa la URL pública que devuelve.
+      if (imagenFile) {
+        setSubiendoImagen(true);
+        const formData = new FormData();
+        formData.append("file", imagenFile);
+        const resSubida = await fetch("/api/admin/baterias/subir-imagen", {
+          method: "POST",
+          body: formData,
+        });
+        const dataSubida = await resSubida.json().catch(() => ({}));
+        setSubiendoImagen(false);
+        if (!resSubida.ok) throw new Error(dataSubida?.error || "Error al subir la imagen.");
+        imagenUrl = dataSubida.url;
+      }
+
       const payload = {
         modelo,
         marca: marca || null,
@@ -64,6 +92,7 @@ export default function BateriaForm({ bateria }: { bateria?: Bateria }) {
       setError(err instanceof Error ? err.message : "Error al guardar la batería.");
     } finally {
       setLoading(false);
+      setSubiendoImagen(false);
     }
   };
 
@@ -108,17 +137,20 @@ export default function BateriaForm({ bateria }: { bateria?: Bateria }) {
       </div>
 
       <div>
-        <label className={labelClass}>URL de la imagen *</label>
+        <label className={labelClass}>Foto de la batería *</label>
         <input
-          value={imagenUrl} onChange={(e) => setImagenUrl(e.target.value)} className={inputClass}
-          placeholder="https://..."
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={(e) => handleArchivo(e.target.files?.[0] || null)}
+          className="block w-full text-sm text-sand-100/70 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:bg-gold file:text-ink-900 file:font-semibold file:cursor-pointer"
         />
-        <p className="text-[11px] text-sand-100/30 mt-1.5">
-          Sube la imagen a un servicio de imágenes (o a tu propio hosting) y pega aquí el enlace directo.
-        </p>
-        {imagenUrl && (
+        <p className="text-[11px] text-sand-100/30 mt-1.5">JPG, PNG, WEBP o GIF. Máximo 5 MB.</p>
+        {imagenPreview && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imagenUrl} alt="Vista previa" className="mt-3 w-24 h-24 object-cover rounded-lg border border-gold/20" />
+          <img src={imagenPreview} alt="Vista previa" className="mt-3 w-24 h-24 object-cover rounded-lg border border-gold/20" />
+        )}
+        {esEdicion && !imagenFile && (
+          <p className="text-[11px] text-sand-100/30 mt-1.5">Si no seleccionas un archivo nuevo, se mantiene la foto actual.</p>
         )}
       </div>
 
@@ -144,7 +176,7 @@ export default function BateriaForm({ bateria }: { bateria?: Bateria }) {
           disabled={loading}
           className="px-6 py-3 bg-gold hover:bg-gold-light disabled:opacity-50 text-ink-900 font-condensed font-black uppercase text-sm rounded-xl transition-colors"
         >
-          {loading ? "Guardando..." : esEdicion ? "Guardar cambios" : "Crear batería"}
+          {subiendoImagen ? "Subiendo imagen..." : loading ? "Guardando..." : esEdicion ? "Guardar cambios" : "Crear batería"}
         </button>
       </div>
     </form>

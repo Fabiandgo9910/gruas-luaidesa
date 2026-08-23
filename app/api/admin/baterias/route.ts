@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getAllBaterias, crearBateria, type BateriaInput } from "@/lib/supabase";
+import { revalidarBaterias } from "@/lib/revalidate";
 
 // GET /api/admin/baterias — listado completo (publicadas o no) para el panel
 export async function GET() {
@@ -40,6 +41,8 @@ export async function POST(req: NextRequest) {
       imagen_url: body.imagen_url,
       publicado: body.publicado ?? true,
     });
+
+    revalidarBaterias();
 
     return NextResponse.json({ bateria });
   } catch (error) {

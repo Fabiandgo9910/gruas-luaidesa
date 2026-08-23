@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import { IconBolt, IconArrowRight } from "@/components/icons";
 import BateriaWhatsAppButton from "@/components/BateriaWhatsAppButton";
 import { getBateriaPorSlug, getBateriasPublicadas } from "@/lib/supabase";
@@ -83,6 +84,7 @@ export default async function BateriaDetallePage({ params }: { params: { slug: s
 
       <section className="pt-32 pb-20 bg-sand-100">
         <div className="max-w-container mx-auto px-5">
+          <Breadcrumbs items={[{ label: "Baterías de coche", href: "/baterias-coche-madrid" }, { label: nombre }]} />
           <Link href="/baterias-coche-madrid" className="text-ink-700/50 hover:text-gold text-sm font-medium mb-8 inline-flex items-center gap-1.5">
             ← Volver al catálogo
           </Link>

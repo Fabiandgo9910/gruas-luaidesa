@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { actualizarBateria, eliminarBateria, type BateriaInput } from "@/lib/supabase";
+import { revalidarBaterias } from "@/lib/revalidate";
 
 // PATCH /api/admin/baterias/:id — editar campos o alternar publicado
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -15,6 +16,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (body.precio !== undefined) patch.precio = body.precio ? Number(body.precio) : null;
 
     const bateria = await actualizarBateria(params.id, patch);
+    revalidarBaterias();
     return NextResponse.json({ bateria });
   } catch (error) {
     console.error("[API /admin/baterias/:id PATCH] Error:", error);
@@ -29,6 +31,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
 
   try {
     await eliminarBateria(params.id);
+    revalidarBaterias();
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[API /admin/baterias/:id DELETE] Error:", error);

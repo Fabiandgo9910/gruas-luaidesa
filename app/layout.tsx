@@ -70,11 +70,25 @@ export const metadata: Metadata = {
   other: {
     "geo.region": "ES-MD",
     "geo.placename": "Madrid",
-    "geo.position": "40.4168;-3.7038",
-    ICBM: "40.4168, -3.7038",
   },
 };
 
+const REDES_SOCIALES = [process.env.NEXT_PUBLIC_FACEBOOK_URL, process.env.NEXT_PUBLIC_INSTAGRAM_URL].filter(
+  (url): url is string => !!url
+);
+
+// Localidades reales de cobertura (mismas que se muestran en la sección
+// "Cobertura geográfica" de la home) — refuerzan el SEO local por zona.
+const ZONAS_COBERTURA = [
+  "Madrid", "Alcalá de Henares", "Getafe", "Leganés", "Alcorcón", "Móstoles",
+  "Fuenlabrada", "Parla", "Torrejón de Ardoz", "Pozuelo de Alarcón",
+  "Majadahonda", "Las Rozas de Madrid", "Coslada", "Rivas-Vaciamadrid", "Valdemoro",
+];
+
+// Sin dirección física ni coordenadas exactas: es un negocio de servicio a
+// domicilio (sin local al que pueda acudir el cliente), así que seguimos la
+// recomendación de Google de omitir "address"/"geo" y declarar solo las
+// zonas de cobertura mediante "areaServed".
 const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
@@ -84,9 +98,10 @@ const localBusinessSchema = {
   url: SITE_URL,
   telephone: PHONE_E164,
   email: EMAIL,
-  address: { "@type": "PostalAddress", addressLocality: "Madrid", addressRegion: "Madrid", addressCountry: "ES" },
-  geo: { "@type": "GeoCoordinates", latitude: "40.4168", longitude: "-3.7038" },
-  areaServed: [{ "@type": "City", name: "Madrid" }, { "@type": "Country", name: "España" }],
+  areaServed: [
+    ...ZONAS_COBERTURA.map((z) => ({ "@type": "City", name: z })),
+    { "@type": "Country", name: "España" },
+  ],
   openingHoursSpecification: {
     "@type": "OpeningHoursSpecification",
     dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
@@ -96,14 +111,18 @@ const localBusinessSchema = {
   serviceType: "Grúa y rescate vehicular",
   priceRange: "€€",
   image: `${SITE_URL}/og-image.jpg`,
+  ...(REDES_SOCIALES.length > 0 ? { sameAs: REDES_SOCIALES } : {}),
 };
 
 const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   name: "Servicio de Grúa 24h",
-  provider: { "@type": "LocalBusiness", name: "Grúas Luaidesa" },
-  areaServed: { "@type": "Country", name: "España" },
+  provider: { "@id": `${SITE_URL}/#business` },
+  areaServed: [
+    ...ZONAS_COBERTURA.map((z) => ({ "@type": "City", name: z })),
+    { "@type": "Country", name: "España" },
+  ],
   description: "Rescate vehicular, traslado de vehículos y asistencia en carretera disponible las 24 horas.",
   serviceType: "Grúa y asistencia en carretera",
 };
@@ -112,8 +131,8 @@ const bateriasServiceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   name: "Venta e instalación de baterías de coche a domicilio",
-  provider: { "@type": "LocalBusiness", name: "Grúas Luaidesa" },
-  areaServed: { "@type": "City", name: "Madrid" },
+  provider: { "@id": `${SITE_URL}/#business` },
+  areaServed: ZONAS_COBERTURA.map((z) => ({ "@type": "City", name: z })),
   description:
     "Venta e instalación a domicilio de baterías de coche de todas las marcas y amperajes, incluidas las de sistema Start-Stop, en Madrid y alrededores.",
   serviceType: "Venta e instalación de baterías de coche",
@@ -125,6 +144,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bateriasServiceSchema) }} />
       </head>
       <body className="bg-brand-black font-sans antialiased">
         <GoogleAnalytics />
