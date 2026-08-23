@@ -1,101 +1,93 @@
--- ============================================================
--- Grúas Luaidesa — Esquema de Supabase
--- Ejecuta este archivo en: Supabase Dashboard → SQL Editor → New query
--- ============================================================
+-- =========================================================
+--  RESTAURANT SAAS - SCHEMA COMPLETO PARA SUPABASE
+--  Ejecutar en: Supabase Dashboard -> SQL Editor -> New query
+-- =========================================================
 
--- Extensión necesaria para generar UUIDs
-create extension if not exists "pgcrypto";
+-- ---------- EXTENSIONES ----------
+create extension if not exists "uuid-ossp";
 
--- ------------------------------------------------------------
--- Tabla principal de leads (solicitudes de servicio)
--- ------------------------------------------------------------
-create table if not exists public.leads (
-  id             uuid primary key default gen_random_uuid(),
-  created_at     timestamptz not null default now(),
-
-  nombre         text not null,
-  telefono       text not null,
-  email          text,
-  ciudad         text not null,
-  servicio       text not null,
-  mensaje        text,
-
-  -- Trazabilidad / analítica
-  origen         text,                 -- navbar | hero | contacto | sticky_mobile | flotante
-  source_url     text,                 -- URL exacta desde la que se envió
-  referrer       text,                 -- de dónde venía el visitante
-  user_agent     text,
-  ip             text,
-
-  -- Gestión comercial (para que el CEO pueda hacer seguimiento)
-  estado         text not null default 'nuevo'
-                 check (estado in ('nuevo','contactado','en_curso','cerrado','descartado')),
-  notas_internas text
+-- ---------- TABLA: restaurants ----------
+create table if not exists public.restaurants (
+  id uuid primary key default uuid_generate_v4(),
+  slug text unique not null,                 -- ej: "la-parrilla" -> /la-parrilla
+  custom_domain text unique,                 -- opcional: dominio propio del cliente
+  name text not null default 'Mi Restaurante',
+  description text default '',
+  meta_title text default '',
+  meta_description text default '',
+  logo_url text,
+  favicon_url text,
+  cover_url text,
+  is_active boolean default true,
+  theme jsonb not null default '{
+    "primaryColor": "#111111",
+    "secondaryColor": "#e0a458",
+    "backgroundColor": "#ffffff",
+    "textColor": "#111111",
+    "font": "Inter",
+    "radius": "1rem"
+  }'::jsonb,
+  socials jsonb default '{"instagram":"","facebook":"","whatsapp":"","website":""}'::jsonb,
+  address text default '',
+  schedule text default '',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
-comment on table public.leads is 'Solicitudes de servicio recibidas desde el formulario web de Grúas Luaidesa';
-
--- Índices para consultas frecuentes del panel/CRM
-create index if not exists leads_created_at_idx on public.leads (created_at desc);
-create index if not exists leads_estado_idx on public.leads (estado);
-create index if not exists leads_ciudad_idx on public.leads (ciudad);
-
--- ------------------------------------------------------------
--- Row Level Security
--- La tabla NO es pública: solo el backend (service role key) puede
--- insertar/leer. El frontend nunca toca esta tabla directamente.
--- ------------------------------------------------------------
-alter table public.leads enable row level security;
-
--- No se define ninguna policy para "anon" ni "authenticated" a propósito:
--- sin policies, RLS bloquea todo acceso excepto el de la service_role,
--- que siempre bypasea RLS. Esto es lo más seguro para datos de clientes.
-
--- ------------------------------------------------------------
--- Vista simple para uso interno (opcional, útil si en el futuro
--- se conecta un panel con Supabase Auth para el equipo)
--- ------------------------------------------------------------
-create or replace view public.leads_resumen as
-select
-  date_trunc('day', created_at) as dia,
-  count(*) as total_leads,
-  count(*) filter (where estado = 'nuevo') as pendientes,
-  count(*) filter (where estado = 'cerrado') as cerrados
-from public.leads
-group by 1
-order by 1 desc;
-
--- ============================================================
--- AMPLIACIÓN — Tienda de Baterías
--- ============================================================
-
--- ------------------------------------------------------------
--- Tabla de baterías (catálogo de la tienda)
--- ------------------------------------------------------------
-create table if not exists public.baterias (
-  id            uuid primary key default gen_random_uuid(),
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now(),
-
-  modelo        text not null,
-  marca         text,
-  amperaje      numeric,              -- Ah
-  precio        numeric,              -- EUR
-  start_stop    boolean not null default false,
-  imagen_url    text not null,
-  slug          text unique not null,
-
-  publicado     boolean not null default true
+-- ---------- TABLA: profiles (usuarios + rol) ----------
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  full_name text,
+  role text not null check (role in ('super_admin','owner')) default 'owner',
+  restaurant_id uuid references public.restaurants(id) on delete cascade,
+  created_at timestamptz default now()
 );
 
-comment on table public.baterias is 'Catálogo de baterías de coche vendidas e instaladas a domicilio';
+-- ---------- TABLA: sections (secciones editables de la landing) ----------
+create table if not exists public.sections (
+  id uuid primary key default uuid_generate_v4(),
+  restaurant_id uuid not null references public.restaurants(id) on delete cascade,
+  type text not null check (type in ('hero','categories','offers','recommended','gallery','text','contact','custom')),
+  title text default '',
+  subtitle text default '',
+  content jsonb default '{}'::jsonb,
+  visible boolean default true,
+  sort_order int default 0,
+  created_at timestamptz default now()
+);
 
-create index if not exists baterias_publicado_idx on public.baterias (publicado);
-create index if not exists baterias_marca_idx on public.baterias (marca);
-create index if not exists baterias_start_stop_idx on public.baterias (start_stop);
-create index if not exists baterias_created_at_idx on public.baterias (created_at desc);
+-- ---------- TABLA: categories ----------
+create table if not exists public.categories (
+  id uuid primary key default uuid_generate_v4(),
+  restaurant_id uuid not null references public.restaurants(id) on delete cascade,
+  name text not null,
+  sort_order int default 0,
+  visible boolean default true,
+  created_at timestamptz default now()
+);
 
--- Mantiene updated_at al día automáticamente en cada UPDATE
+-- ---------- TABLA: products ----------
+create table if not exists public.products (
+  id uuid primary key default uuid_generate_v4(),
+  restaurant_id uuid not null references public.restaurants(id) on delete cascade,
+  category_id uuid references public.categories(id) on delete set null,
+  name text not null,
+  description text default '',
+  price numeric(10,2) not null default 0,
+  offer_price numeric(10,2),
+  is_offer boolean default false,
+  is_recommended boolean default false,
+  available boolean default true,
+  image_url text,
+  ingredients text[] default '{}',
+  allergens text[] default '{}',
+  sort_order int default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- ---------- Trigger updated_at ----------
 create or replace function public.set_updated_at()
 returns trigger as $$
 begin
@@ -104,14 +96,167 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists baterias_set_updated_at on public.baterias;
-create trigger baterias_set_updated_at
-  before update on public.baterias
-  for each row execute function public.set_updated_at();
+drop trigger if exists trg_restaurants_updated on public.restaurants;
+create trigger trg_restaurants_updated before update on public.restaurants
+for each row execute procedure public.set_updated_at();
 
-alter table public.baterias enable row level security;
--- Igual que "leads": sin policies para anon/authenticated. Todo el
--- acceso (lectura pública en la tienda incluida) pasa por el backend
--- con la service_role key, que bypasea RLS. El frontend nunca lee
--- Supabase directamente.
+drop trigger if exists trg_products_updated on public.products;
+create trigger trg_products_updated before update on public.products
+for each row execute procedure public.set_updated_at();
 
+-- =========================================================
+--  HELPERS DE ROL (usados en las políticas RLS)
+-- =========================================================
+create or replace function public.current_role_is_super_admin()
+returns boolean language sql stable as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'super_admin'
+  );
+$$;
+
+create or replace function public.current_user_restaurant_id()
+returns uuid language sql stable as $$
+  select restaurant_id from public.profiles where id = auth.uid();
+$$;
+
+-- =========================================================
+--  ROW LEVEL SECURITY
+-- =========================================================
+alter table public.restaurants enable row level security;
+alter table public.profiles enable row level security;
+alter table public.sections enable row level security;
+alter table public.categories enable row level security;
+alter table public.products enable row level security;
+
+-- ----- restaurants -----
+drop policy if exists "public read active restaurants" on public.restaurants;
+create policy "public read active restaurants" on public.restaurants
+  for select using (is_active = true or public.current_role_is_super_admin() or id = public.current_user_restaurant_id());
+
+drop policy if exists "super admin all restaurants" on public.restaurants;
+create policy "super admin all restaurants" on public.restaurants
+  for all using (public.current_role_is_super_admin())
+  with check (public.current_role_is_super_admin());
+
+drop policy if exists "owner update own restaurant basic" on public.restaurants;
+create policy "owner update own restaurant basic" on public.restaurants
+  for update using (id = public.current_user_restaurant_id())
+  with check (id = public.current_user_restaurant_id());
+
+-- ----- profiles -----
+drop policy if exists "user reads own profile" on public.profiles;
+create policy "user reads own profile" on public.profiles
+  for select using (id = auth.uid() or public.current_role_is_super_admin());
+
+drop policy if exists "super admin manages profiles" on public.profiles;
+create policy "super admin manages profiles" on public.profiles
+  for all using (public.current_role_is_super_admin())
+  with check (public.current_role_is_super_admin());
+
+-- ----- sections -----
+drop policy if exists "public read sections" on public.sections;
+create policy "public read sections" on public.sections for select using (true);
+
+drop policy if exists "owner/super manage sections" on public.sections;
+create policy "owner/super manage sections" on public.sections
+  for all using (
+    public.current_role_is_super_admin() or restaurant_id = public.current_user_restaurant_id()
+  )
+  with check (
+    public.current_role_is_super_admin() or restaurant_id = public.current_user_restaurant_id()
+  );
+
+-- ----- categories -----
+drop policy if exists "public read categories" on public.categories;
+create policy "public read categories" on public.categories for select using (true);
+
+drop policy if exists "owner/super manage categories" on public.categories;
+create policy "owner/super manage categories" on public.categories
+  for all using (
+    public.current_role_is_super_admin() or restaurant_id = public.current_user_restaurant_id()
+  )
+  with check (
+    public.current_role_is_super_admin() or restaurant_id = public.current_user_restaurant_id()
+  );
+
+-- ----- products -----
+drop policy if exists "public read products" on public.products;
+create policy "public read products" on public.products for select using (true);
+
+drop policy if exists "owner/super manage products" on public.products;
+create policy "owner/super manage products" on public.products
+  for all using (
+    public.current_role_is_super_admin() or restaurant_id = public.current_user_restaurant_id()
+  )
+  with check (
+    public.current_role_is_super_admin() or restaurant_id = public.current_user_restaurant_id()
+  );
+
+-- =========================================================
+--  STORAGE (bucket para imágenes públicas: logos, favicons, productos)
+-- =========================================================
+insert into storage.buckets (id, name, public)
+values ('restaurant-assets', 'restaurant-assets', true)
+on conflict (id) do nothing;
+
+drop policy if exists "public read restaurant-assets" on storage.objects;
+create policy "public read restaurant-assets" on storage.objects
+  for select using (bucket_id = 'restaurant-assets');
+
+drop policy if exists "authenticated upload restaurant-assets" on storage.objects;
+create policy "authenticated upload restaurant-assets" on storage.objects
+  for insert to authenticated with check (bucket_id = 'restaurant-assets');
+
+drop policy if exists "authenticated update own restaurant-assets" on storage.objects;
+create policy "authenticated update own restaurant-assets" on storage.objects
+  for update to authenticated using (bucket_id = 'restaurant-assets');
+
+drop policy if exists "authenticated delete own restaurant-assets" on storage.objects;
+create policy "authenticated delete own restaurant-assets" on storage.objects
+  for delete to authenticated using (bucket_id = 'restaurant-assets');
+
+-- =========================================================
+--  TRIGGER: crear profile automáticamente al registrar usuario
+--  (por defecto como 'owner' sin restaurante asignado;
+--   el super_admin debe asignarle un restaurante luego)
+-- =========================================================
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email, role)
+  values (new.id, new.email, 'owner')
+  on conflict (id) do nothing;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- =========================================================
+--  DATOS DE EJEMPLO (opcional, puedes borrar este bloque)
+-- =========================================================
+insert into public.restaurants (slug, name, description, meta_title, meta_description)
+values ('demo', 'Restaurante Demo', 'Cocina de autor con ingredientes frescos de temporada.', 'Restaurante Demo | Menú', 'Descubre nuestro menú, ofertas del día y recomendaciones.')
+on conflict (slug) do nothing;
+
+-- Nota: para convertir un usuario en super_admin, después de registrarlo ejecuta:
+-- update public.profiles set role = 'super_admin', restaurant_id = null where email = 'tu-email@ejemplo.com';
+
+-- =========================================================
+--  MIGRACIÓN (segura de re-ejecutar): galería de imágenes por producto,
+--  y nuevo tipo de sección "daily_menu" (menú del día)
+-- =========================================================
+
+-- Varias imágenes secundarias por producto (la principal sigue siendo image_url)
+alter table public.products
+  add column if not exists gallery_images text[] default '{}';
+
+-- Permitir el nuevo tipo de sección "daily_menu" en el check existente
+alter table public.sections drop constraint if exists sections_type_check;
+alter table public.sections
+  add constraint sections_type_check
+  check (type in ('hero','categories','offers','recommended','gallery','text','contact','custom','daily_menu'));

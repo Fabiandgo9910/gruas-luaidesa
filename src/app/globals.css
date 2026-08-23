@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Formato "R G B" (sin comas) para que funcionen los modificadores de
+     opacidad de Tailwind, ej: bg-primary/50 */
+  --color-primary: 17 17 17;
+  --color-secondary: 224 164 88;
+  --color-bg: 255 255 255;
+  --color-text: 17 17 17;
+  --font-theme: "Inter", sans-serif;
+  --radius-theme: 1rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 8px;
+}
+
+.skeleton {
+  @apply animate-pulse bg-neutral-200 rounded-theme;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
