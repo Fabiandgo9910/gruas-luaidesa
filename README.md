@@ -1,462 +1,471 @@
-# 🍽️ Menu SaaS — Plataforma multi-restaurante de menús digitales
+# 🛡️ Grúas Luaidesa — Sitio Web
 
-Proyecto **Next.js 14 + Supabase + Tailwind CSS + PWA**. Un único código base
-que sirve a varios restaurantes: cada restaurante nuevo = una fila en la base
-de datos, no un despliegue nuevo.
+Next.js 14 + Tailwind CSS + Supabase (base de datos de clientes) + Google Analytics 4
 
-> ✅ **Este proyecto fue compilado y ejecutado de verdad antes de entregarlo**
-> (`npm install`, `npm run build`, `npm run start`, y pruebas reales de las
-> rutas). No es solo código sin probar — ver sección 11 para el detalle de
-> qué se verificó.
-
-## Roles: Super Admin y Admin de restaurante
-
-Hay **un solo panel** en `tuapp.com/admin`, con **un solo login**, que se
-adapta según quién entra:
-
-- **Super Admin** (uno solo, o los que tú quieras) → entra y ve **la lista de
-  todos los restaurantes**. Puede administrarlo todo, de cualquier
-  restaurante: crear/eliminar restaurantes, productos, categorías, tema de
-  colores y tipografía, secciones de la página pública (activar/desactivar/
-  reordenar), favicon, logo, dominio propio, nombre, SEO, y crear el acceso
-  de cada **Admin de restaurante**.
-- **Admin de restaurante** (uno por cada restaurante, tantos como quieras) →
-  entra con su correo y contraseña y cae **directo en su propio restaurante**
-  (no ve ni puede tocar ningún otro). Puede: agregar, editar y eliminar
-  productos (precio, fotos, ingredientes, alérgenos, disponibilidad),
-  marcarlos en oferta del día, y gestionar sus categorías. No puede tocar
-  tema, colores, secciones ni dominio — eso es solo del Super Admin.
-
-Internamente el rol se llama `owner` en la base de datos (por herencia del
-nombre de la tabla), pero en toda la interfaz se muestra como
-**"Admin de restaurante"**.
+Esta guía asume que **no tienes experiencia técnica previa**. Sigue los pasos en orden y en unos 30-40 minutos tendrás el sitio funcionando y publicado.
 
 ---
 
-## 1. Requisitos previos
+## 🧰 Paso 0 — Lo que necesitas antes de empezar
 
-- Node.js 18 o superior
-- Una cuenta gratuita en [supabase.com](https://supabase.com)
-- Una cuenta gratuita en [vercel.com](https://vercel.com)
+- Un ordenador (Windows, Mac o Linux)
+- Una cuenta de correo (ya tienes `gruasluaidesa@gmail.com`)
+- 30-40 minutos
 
----
+Vamos a instalar 2 programas gratuitos:
 
-## 2. Configurar Supabase
-
-1. [supabase.com](https://supabase.com) → **New Project**. Espera ~2 minutos.
-2. **SQL Editor** → **New query** → pega TODO el contenido de
-   `supabase/schema.sql` → **Run**.
-3. **Settings → API**, copia:
-   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
-   - `anon public key` → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `service_role key` (sección "secret") → `SUPABASE_SERVICE_ROLE_KEY`
-     ⚠️ Muy sensible: nunca la subas a un repo público ni la uses en el navegador.
-4. (Opcional en desarrollo) **Authentication → Settings** → desactiva
-   "Confirm email" para crear usuarios de prueba sin verificar correo.
-
-### Crear tu primer Super Admin
-
-1. **Authentication → Users → Add user**: tu correo + contraseña, marca
-   "Auto confirm user".
-2. **SQL Editor**, ejecuta (cambia el correo):
-   ```sql
-   update public.profiles
-   set role = 'super_admin', restaurant_id = null
-   where email = 'tu-email@ejemplo.com';
+### 0.1 Instalar Node.js
+1. Ve a [nodejs.org](https://nodejs.org)
+2. Descarga la versión **LTS** (la que pone "Recommended for most users")
+3. Instálalo haciendo doble clic y aceptando todo por defecto
+4. Para comprobar que se instaló bien, abre una terminal (en Mac: Spotlight → "Terminal"; en Windows: busca "PowerShell") y escribe:
+   ```bash
+   node -v
    ```
-3. Entra a `/admin/login` con ese usuario → verás la lista de restaurantes.
+   Debería mostrarte algo como `v20.x.x`
+
+### 0.2 Instalar un editor de código (opcional pero recomendado)
+Descarga [Visual Studio Code](https://code.visualstudio.com) (gratis). Te servirá para abrir la carpeta del proyecto y editar textos si algún día quieres cambiar algo.
 
 ---
 
-## 3. Configurar el proyecto localmente
+## 📦 Paso 1 — Descomprimir y preparar el proyecto
+
+1. Descomprime el archivo `gruas-luaidesa-optimizado.zip` en tu escritorio (o donde prefieras)
+2. Abre la terminal y navega hasta esa carpeta. Por ejemplo, si está en el escritorio:
+   ```bash
+   cd Desktop/gruas-luaidesa
+   ```
+3. Instala las dependencias del proyecto (descarga todo lo que el código necesita para funcionar):
+   ```bash
+   npm install
+   ```
+   Esto tardará 1-2 minutos. Verás muchas líneas de texto pasar — es normal.
+
+---
+
+## 🗄️ Paso 2 — Crear tu base de datos en Supabase (donde se guardan los clientes)
+
+Esto sustituye a Google Sheets: es una base de datos real, profesional, privada y que crece sola con cada solicitud que llega por la web.
+
+1. Ve a [supabase.com](https://supabase.com) y haz clic en **"Start your project"**
+2. Regístrate con tu email o con Google (te recomiendo usar `gruasluaidesa@gmail.com`)
+3. Haz clic en **"New Project"**
+   - **Name**: `gruas-luaidesa`
+   - **Database Password**: genera una contraseña segura y **guárdala en un lugar seguro** (gestor de contraseñas, nota privada)
+   - **Region**: elige `West EU (Ireland)` o similar (la más cercana a España)
+   - Haz clic en **"Create new project"** y espera 1-2 minutos mientras se crea
+
+5. Una vez creado, en el menú lateral izquierdo haz clic en el icono de **"SQL Editor"** (parece una terminal `>`)
+6. Haz clic en **"New query"**
+7. Abre el archivo `supabase/schema.sql` que viene dentro de la carpeta del proyecto (ábrelo con el Bloc de notas, TextEdit o VS Code), copia **todo** su contenido, y pégalo en el recuadro del SQL Editor de Supabase
+8. Haz clic en el botón **"Run"** (o pulsa `Ctrl+Enter` / `Cmd+Enter`)
+9. Deberías ver un mensaje de éxito ("Success. No rows returned"). Esto ha creado **tres tablas**:
+   - `leads` → clientes que rellenan el formulario de la grúa
+   - `baterias` → el catálogo de la tienda de baterías
+   - `eventos_contacto` → cada clic en llamar/WhatsApp y cada formulario enviado, para llevar control real de contactos
+
+### Obtener tus claves de Supabase
+
+1. En el menú lateral, ve a **"Project Settings"** (icono de engranaje) → **"API"**
+2. Copia estos valores, los necesitarás en el Paso 4:
+   - **Project URL** (algo como `https://xxxxx.supabase.co`)
+   - **anon public** (en la sección "Project API keys" — esta es pública por diseño, solo sirve para el login del panel de administración)
+   - **service_role** (en la misma sección — haz clic en "Reveal" para verla completa)
+
+   ⚠️ **Importante**: la clave `service_role` da acceso completo a tus datos. No la compartas ni la publiques nunca en redes sociales, foros o repositorios públicos. En este proyecto solo se usa de forma segura, en el servidor. La `anon public` sí está pensada para ser pública, no hay problema en usarla en el navegador.
+
+### Cómo ver los clientes que van llegando
+
+Cada vez que alguien rellene el formulario de la web, aparecerá aquí:
+- Entra en tu proyecto de Supabase → menú lateral → **"Table Editor"** → tabla **"leads"**
+- Verás nombre, teléfono, email, ciudad, tipo de servicio, mensaje y fecha de cada solicitud
+- Hay una columna **"estado"** que puedes editar manualmente para marcar cada cliente como `nuevo`, `contactado`, `en_curso`, `cerrado` o `descartado` — te sirve como mini-CRM para hacer seguimiento
+
+---
+
+## 👤 Paso 2bis — Crear tu usuario Super Admin (para entrar al panel de baterías)
+
+El panel de administración de baterías (`/panel-control`) usa el sistema de autenticación de Supabase. Vamos a crear tu usuario administrador directamente desde el dashboard — es más seguro que hacerlo por código:
+
+1. En tu proyecto de Supabase, ve al menú lateral → **"Authentication"** → pestaña **"Users"**
+2. Haz clic en **"Add user"** → **"Create new user"**
+3. Rellena:
+   - **Email**: el correo con el que vas a entrar al panel (puede ser `gruasluaidesa@gmail.com` o uno específico para gestión)
+   - **Password**: una contraseña segura (apúntala en tu gestor de contraseñas)
+   - Marca la casilla **"Auto Confirm User"** (así no hace falta que confirmes el email para poder entrar)
+4. Haz clic en **"Create user"**
+
+Con esto ya tienes tu Super Admin. Podrás iniciar sesión en `/panel-control/login` con ese email y contraseña.
+
+**¿Quieres añadir más de un administrador?** Repite estos mismos pasos con otro email — cualquier usuario que exista en Authentication → Users podrá entrar al panel. No hay roles distintos: todo usuario que crees aquí tiene acceso completo al panel.
+
+
+
+---
+
+## ⚙️ Paso 3 — Configurar Google Analytics (opcional, pero recomendado)
+
+Esto te permite ver cuánta gente visita tu web, desde dónde, y cuántos hacen clic en "Llamar" o "WhatsApp".
+
+1. Ve a [analytics.google.com](https://analytics.google.com) y entra con tu cuenta de Google
+2. Crea una cuenta nueva → nombre "Grúas Luaidesa"
+3. Crea una propiedad → elige "Web", pon la URL de tu futuro dominio (por ejemplo `gruasluaidesa.com`)
+4. Ve a **Admin** (icono de engranaje abajo a la izquierda) → **"Flujos de datos"** → tu flujo web
+5. Copia el **"ID de medición"**, tiene el formato `G-XXXXXXXXXX`
+
+Si no quieres configurar esto ahora, puedes dejarlo vacío y el sitio funcionará igual — simplemente no se registrarán estadísticas de visitas hasta que lo añadas.
+
+---
+
+## 🔑 Paso 4 — Rellenar tus datos reales (el archivo de configuración)
+
+1. Dentro de la carpeta del proyecto, busca el archivo llamado `.env.local.example`
+2. Haz una copia de ese archivo y renómbrala a `.env.local` (quitando ".example")
+   - En Mac/Linux, puedes hacerlo desde la terminal:
+     ```bash
+     cp .env.local.example .env.local
+     ```
+   - En Windows, copia el archivo y renómbralo desde el explorador de archivos
+3. Abre `.env.local` con el Bloc de notas o VS Code y rellena así:
+
+   ```
+   SUPABASE_URL=https://xxxxx.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=pega_aqui_tu_service_role_key
+
+   NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=pega_aqui_tu_anon_public_key
+
+   NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
+   NEXT_PUBLIC_WHATSAPP_NUMBER=34674088195
+   NEXT_PUBLIC_PHONE_NUMBER=+34 674 08 81 95
+   NEXT_PUBLIC_EMAIL=gruasluaidesa@gmail.com
+
+   NEXT_PUBLIC_SITE_URL=https://www.gruasluaidesa.com
+   ```
+
+   - Sustituye `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` por los valores que copiaste en el Paso 2
+   - Sustituye `NEXT_PUBLIC_SUPABASE_URL` (la misma URL de arriba) y `NEXT_PUBLIC_SUPABASE_ANON_KEY` por la clave `anon public` que copiaste también en el Paso 2 — son necesarias para poder iniciar sesión en `/panel-control`
+   - Sustituye `NEXT_PUBLIC_GA_MEASUREMENT_ID` por el ID del Paso 3 (o déjalo vacío si no lo has configurado)
+   - `NEXT_PUBLIC_SITE_URL` ponlo con el dominio real que vayas a usar (aunque aún no lo tengas comprado, puedes poner el que planeas usar)
+
+4. Guarda el archivo
+
+---
+
+## 💻 Paso 5 — Probar el sitio en tu ordenador (antes de publicarlo)
+
+En la terminal, dentro de la carpeta del proyecto:
 
 ```bash
-cd restaurant-saas
-npm install
-cp .env.example .env.local
-```
-
-Rellena `.env.local`:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxx...
-SUPABASE_SERVICE_ROLE_KEY=eyJxxxxx...
-NEXT_PUBLIC_ROOT_DOMAIN=localhost:3000
-```
-
-```bash
-npm run seed   # opcional: restaurante "demo" con productos de ejemplo
 npm run dev
 ```
 
-Abre:
-- `http://localhost:3000` → landing del SaaS
-- `http://localhost:3000/demo` → menú público de ejemplo (si corriste el seed)
-- `http://localhost:3000/admin/login` → panel único (Super Admin o Admin de restaurante)
+Espera a que aparezca algo como `Ready in 2s`, y luego abre tu navegador en:
 
-**Antes de desplegar a producción**, corre siempre:
-```bash
-npm run build
 ```
-Si esto no termina en "✓ Compiled successfully" y no muestra errores en
-rojo, **no lo despliegues** — arregla el error que muestre primero (Vercel
-hará exactamente este mismo build, y si falla aquí, fallará allá).
+http://localhost:3000
+```
+
+Ya deberías ver la web funcionando. Pruébala:
+- Haz clic en los botones de "Llamar" y "WhatsApp" — deberían intentar abrir tu teléfono/WhatsApp con tu número real
+- Rellena el formulario de contacto con datos de prueba y envíalo
+- Ve a Supabase → Table Editor → leads y comprueba que ha aparecido tu envío de prueba
+
+Para detener el sitio de prueba, vuelve a la terminal y pulsa `Ctrl + C`.
 
 ---
 
-## 4. Flujo de uso normal (día a día)
+## 🚀 Paso 6 — Publicar el sitio en internet (Vercel, gratis)
 
-1. **Super Admin** entra a `/admin` → "Nuevo restaurante" → nombre → listo.
-   Entra a gestionarlo (`/admin/restaurantes/[id]`) y configura: categorías,
-   productos, tema, secciones, favicon/logo, y en la pestaña **Usuarios**
-   crea el acceso del Admin de ese restaurante (correo + contraseña).
-2. **Admin de restaurante** entra a `/admin/login` → cae directo en su
-   espacio: pestañas **Productos**, **Categorías**, **Ofertas del día**.
-   Agregar o editar un producto abre un formulario en una ventana emergente,
-   sin cambiar de página.
-3. **Cliente final** entra a `tuapp.com/slug-del-restaurante`, sin cuenta, y
-   ve el menú actualizado.
+Vercel es la plataforma que crea la misma empresa que hace Next.js — es la opción más sencilla y gratuita para este tipo de web.
+
+1. Ve a [vercel.com](https://vercel.com) y regístrate (puedes usar tu cuenta de GitHub o email)
+2. Haz clic en **"Add New..."** → **"Project"**
+3. Tienes dos opciones:
+   - **Opción fácil (recomendada)**: sube la carpeta del proyecto arrastrándola en la web de Vercel cuando te lo pida ("Deploy without Git" / subida directa)
+   - **Opción con GitHub** (si en el futuro quieres que un programador siga editando el código): sube el proyecto a un repositorio de GitHub y conéctalo desde Vercel
+
+4. Antes de darle a "Deploy", Vercel te pedirá las **variables de entorno**. Añade una por una (el nombre a la izquierda, el valor a la derecha), copiando los mismos valores que pusiste en tu archivo `.env.local`:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+   - `NEXT_PUBLIC_WHATSAPP_NUMBER`
+   - `NEXT_PUBLIC_PHONE_NUMBER`
+   - `NEXT_PUBLIC_EMAIL`
+   - `NEXT_PUBLIC_SITE_URL`
+
+5. Haz clic en **"Deploy"** y espera 1-2 minutos
+6. ¡Listo! Vercel te dará una URL tipo `gruas-luaidesa.vercel.app` donde ya está tu web publicada y funcionando
+
+### Conectar tu dominio propio (por ejemplo, gruasluaidesa.com)
+
+1. Compra el dominio en cualquier proveedor (Namecheap, GoDaddy, IONOS, Dondominio...) si aún no lo tienes
+2. En Vercel, entra en tu proyecto → **"Settings"** → **"Domains"**
+3. Escribe tu dominio y sigue las instrucciones (Vercel te dará unos registros DNS que debes copiar en el panel de tu proveedor de dominio)
+4. En 15 minutos a 24 horas tu dominio apuntará ya a la web
 
 ---
 
-## 5. Roles y seguridad
+## 🔋 Tienda de Baterías — Guía completa del panel de administración
 
-| Rol | Qué ve/gestiona en `/admin` | Cómo se protege |
+Esta parte es nueva: además de la grúa, la web ahora vende e instala baterías de coche a domicilio. Tiene su propia tienda pública y un panel de administración privado para gestionar el catálogo.
+
+### Cómo entrar al panel
+
+El panel **no tiene ningún enlace visible en la web** (a propósito, para que no lo vea un cliente normal). Se accede escribiendo la URL directamente en el navegador:
+
+```
+https://tudominio.com/panel-control/login
+```
+
+(o `http://localhost:3000/panel-control/login` mientras pruebas en tu ordenador)
+
+Entra con el email y contraseña que creaste en el **Paso 2bis**. Guarda esta URL en tus marcadores/favoritos — es tu acceso privado.
+
+### ¿Se me olvidó la contraseña?
+
+1. En la pantalla de login, haz clic en **"¿Has olvidado tu contraseña?"**
+2. Escribe tu email y pulsa "Enviar enlace"
+3. Revisa tu correo (y la carpeta de spam) — te llegará un enlace de Supabase para restablecerla
+4. Al hacer clic, se abrirá una pantalla en tu propia web para escribir la nueva contraseña
+
+> Si el correo no llega: por defecto, Supabase envía estos emails desde su propio servidor con límites bajos (útil para probar, pero poco fiable para producción). Si esto te da problemas más adelante, en Supabase → **Authentication → Providers → Email** puedes conectar tu propio proveedor de email (por ejemplo Resend o SMTP de tu dominio) para que los envíos sean fiables.
+
+### El panel tiene 2 secciones
+
+- **Resumen** (`/panel-control`) — Cuántas solicitudes de grúa (leads) hay y cuántas baterías tienes en catálogo/publicadas.
+- **Baterías** (`/panel-control/baterias`) — El catálogo completo: crear, editar, publicar/ocultar, eliminar (una a una o en lote), e importar desde Excel.
+
+> Las llamadas y los clics de WhatsApp **no se guardan en la base de datos** — se miden solo en Google Analytics (ver la sección "Cómo ver los eventos en Google Analytics" más abajo).
+
+### Crear una batería manualmente
+
+1. Ve a **Baterías** → **"+ Nueva batería"**
+2. Solo son obligatorios el **Modelo** y la **URL de la imagen**. Marca, amperaje, precio y si tiene Start-Stop son opcionales
+3. Sobre la imagen: como es un enlace (URL), primero tienes que subir la foto a algún sitio que te dé un link directo — por ejemplo, súbela a un servicio de imágenes gratuito, a tu Google Drive/Dropbox en modo público, o pide a tu proveedor de baterías el link de sus fotos de catálogo. Pega ese enlace en el campo
+4. Marca si quieres que se publique ya o la dejas oculta para revisarla después
+5. Pulsa "Crear batería" — aparecerá al momento en `/baterias-coche-madrid` si está publicada
+
+### Editar, publicar/ocultar o eliminar
+
+- En la tabla de **Baterías**, pulsa **"Editar"** para cambiar cualquier dato
+- Pulsa la pastilla de **"Publicada" / "Oculta"** para alternar si se ve en la tienda sin necesidad de borrarla (útil si se te agota temporalmente)
+- Pulsa **"Eliminar"** para borrarla del todo (pide confirmación)
+
+### Eliminar varias a la vez
+
+1. Marca las casillas de las baterías que quieras borrar (o la casilla de la cabecera para marcarlas todas)
+2. Aparecerá una barra arriba con el botón **"Eliminar seleccionadas"**
+3. Confirma — se eliminan todas de golpe
+
+### Importar baterías en lote desde un Excel
+
+Esto te ahorra crearlas una por una si tienes muchas.
+
+1. Ve a **Baterías** → **"Importar Excel"**
+2. Prepara un archivo `.xlsx` con una fila por batería y estas columnas en la primera fila (el orden no importa):
+
+   | modelo * | imagen * | marca | precio | amperaje | start_stop |
+   |---|---|---|---|---|---|
+   | Tudor TA640 | https://.../ta640.jpg | Tudor | 89.90 | 64 | si |
+   | Varta E11 |  https://.../e11.jpg  | Varta |  |  |  |
+
+   - **Obligatorias**: `modelo` e `imagen` (con la URL directa a la foto). Si falta cualquiera de las dos en una fila, esa fila se rechaza (pero el resto se crean igualmente)
+   - **Opcionales**: `marca`, `precio`, `amperaje` — pueden quedar vacías sin problema
+   - `start_stop` acepta `si` / `no`, `true` / `false`, o `1` / `0`
+   - También se aceptan estos nombres alternativos de columna: `imagen_url`, `url_imagen`, `foto` (para la imagen) y `arranque_parada`, `stop_start` (para el Start-Stop)
+
+3. Sube el archivo y pulsa "Importar"
+4. Verás cuántas se crearon correctamente y, si alguna fila falló, el motivo exacto (por ejemplo "Falta la imagen (obligatorio)")
+5. Todas las importadas se crean **publicadas** por defecto — puedes ocultarlas después si hace falta revisarlas antes
+
+### El botón de WhatsApp de cada batería
+
+Cada batería de la tienda tiene un botón **"Consultar por WhatsApp"** que abre WhatsApp con un mensaje ya escrito, incluyendo el modelo exacto que le interesa al cliente (por ejemplo: *"Hola, me interesa la batería Tudor TA640. ¿Precio y disponibilidad?"*). Así nunca tienes que preguntar qué batería quería.
+
+### El botón "¿No sabes qué batería lleva tu coche?"
+
+Está en la tienda pública, encima del listado. Al pulsarlo, se abre un formulario corto (marca, modelo y año del coche del cliente) y, al enviarlo, se abre WhatsApp con ese mensaje ya redactado para ti. Es la opción para clientes que no saben el modelo exacto de su batería.
+
+### Filtros de la tienda pública
+
+En `/baterias-coche-madrid`, el cliente puede filtrar por:
+- Texto libre (busca en marca + modelo)
+- Marca (desplegable, se genera solo con las marcas que tengas dadas de alta)
+- Rango de amperaje
+- Solo baterías con sistema Start-Stop
+
+---
+
+## 📧 Email automático por cada solicitud del formulario
+
+Además de guardarse siempre en Supabase (tabla `leads`, esto no ha cambiado), ahora cada envío del formulario **también te llega un email** a tu Gmail con los datos del cliente. Usa [Resend](https://resend.com), un servicio de envío de emails con plan gratuito (3.000 emails/mes) — no necesitas dar tu contraseña de Gmail ni tocar nada de tu cuenta de correo.
+
+### Configurarlo (5 minutos)
+
+1. Ve a [resend.com](https://resend.com) y crea una cuenta gratuita
+2. En el menú lateral, ve a **"API Keys"** → **"Create API Key"** → dale un nombre (p.ej. "Gruas Luaidesa") → cópiala (empieza por `re_`)
+3. Añade en tu `.env.local` (y en Vercel):
+   ```
+   RESEND_API_KEY=re_tu_api_key_aqui
+   NOTIFICATION_EMAIL=gruasluaidesa@gmail.com
+   ```
+4. Deja `EMAIL_FROM` tal cual viene en el ejemplo — usa el dominio de pruebas de Resend, que funciona sin configurar nada más
+5. Prueba el formulario: te debería llegar un email a `gruasluaidesa@gmail.com` con nombre, teléfono, ciudad, servicio y mensaje del cliente, en segundos
+
+### ¿Y si quiero que el email no diga "onboarding@resend.dev" como remitente?
+
+Es opcional, pero si más adelante quieres que el remitente sea tu propio dominio (por ejemplo `avisos@gruasluaidesa.com`):
+1. En Resend → **"Domains"** → **"Add Domain"** → escribe tu dominio
+2. Añade los registros DNS que te indique en el panel de tu proveedor de dominio (parecido a conectar el dominio en Vercel)
+3. Cuando Resend lo marque como verificado, cambia `EMAIL_FROM` en tus variables de entorno a `Grúas Luaidesa <avisos@tudominio.com>`
+
+### Importante
+
+- Si `RESEND_API_KEY` o `NOTIFICATION_EMAIL` no están configuradas, el sitio **sigue funcionando igual**: el lead se guarda en Supabase de todas formas, simplemente no se envía el email. No es una pieza crítica que pueda romper el formulario.
+- Puedes seguir viendo y gestionando todos los leads igualmente desde Supabase → Table Editor → `leads`, con el email como aviso adicional en tiempo real.
+
+---
+
+## 📊 Cómo ver los eventos en Google Analytics
+
+Las llamadas y los clics de WhatsApp (tanto de la grúa como de la tienda de baterías) y los envíos de formulario se miden **solo en Google Analytics** — no se guardan en tu base de datos ni en el panel.
+
+### Ver las visitas y eventos en tiempo real
+
+1. Ve a [analytics.google.com](https://analytics.google.com) y entra en tu propiedad "Grúas Luaidesa"
+2. En el menú lateral izquierdo, pulsa **"Informes"** → **"Tiempo real"**
+3. Visita tu propia web en otra pestaña (y acepta el banner de cookies) — verás tu visita aparecer en segundos, y si pulsas algún botón de llamar/WhatsApp, el evento aparece en el bloque "Recuento de eventos por nombre de evento"
+
+### Ver el histórico de eventos (no solo en tiempo real)
+
+1. En el menú lateral, ve a **"Informes"** → **"Interacción"** → **"Eventos"**
+2. Verás una tabla con todos los nombres de evento y cuántas veces ha ocurrido cada uno en el periodo seleccionado (arriba a la derecha puedes cambiar el rango de fechas)
+3. Los eventos que vas a ver son:
+   - `click_phone` → clics en botones de llamar (grúa)
+   - `click_whatsapp` → clics en botones de WhatsApp (grúa)
+   - `click_whatsapp_bateria` → clics en "Consultar por WhatsApp" de una batería, o en "¿Qué batería lleva mi coche?"
+   - `lead_form_submit` / `lead_form_success` / `lead_form_error` → envíos del formulario de grúa (intentado / guardado con éxito / con error)
+
+### Ver el detalle de cada evento (qué botón, qué batería...)
+
+Cada evento lleva además una "etiqueta" (por ejemplo, qué botón exacto se pulsó, o el modelo de batería consultado). Para verla en los informes:
+
+1. Ve a **Admin** (icono de engranaje, abajo a la izquierda) → en la columna de la propiedad, **"Definiciones personalizadas"** → **"Dimensiones personalizadas"**
+2. Pulsa **"Crear dimensiones personalizadas"**
+3. Rellena:
+   - **Nombre de la dimensión**: `Etiqueta del evento`
+   - **Ámbito**: Evento
+   - **Parámetro de evento**: `event_label`
+4. Guarda. A partir de aquí (los datos anteriores a crear la dimensión no se pueden recuperar retroactivamente), en **Informes → Interacción → Eventos**, al hacer clic en un evento concreto (por ejemplo `click_whatsapp_bateria`) podrás añadir "Etiqueta del evento" como columna o comparación para ver exactamente qué modelo de batería se consultó cada vez.
+
+### Crear un informe/panel a medida (opcional)
+
+Si quieres un panel visual con estas cifras (por ejemplo, comparar llamadas vs. WhatsApp vs. formularios), en GA4 puedes ir a **"Explorar"** en el menú lateral y crear una "Exploración libre" añadiendo el nombre del evento como dimensión y "Recuento de eventos" como métrica.
+
+---
+
+## ✅ Checklist final — no olvides esto antes de dar la web por lanzada
+
+- [ ] Ejecutado `supabase/schema.sql` en Supabase y comprobado que existen las tablas `leads` y `baterias`
+- [ ] Creado tu usuario Super Admin en Supabase → Authentication → Users (Paso 2bis)
+- [ ] Rellenado `.env.local` con tus datos reales, incluidas `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [ ] Configurada tu cuenta de Resend y añadidas `RESEND_API_KEY` y `NOTIFICATION_EMAIL`
+- [ ] Probado el formulario de grúa en local (`npm run dev`) y confirmado que el envío aparece en Supabase **y** llega el email a Gmail
+- [ ] Probado el login en `/panel-control/login` y creado al menos una batería de prueba
+- [ ] Configuradas las mismas variables de entorno en Vercel (Supabase Auth + Resend)
+- [ ] Publicado el sitio y probado los botones de llamada/WhatsApp desde el móvil real, tanto en la grúa como en la tienda de baterías
+- [ ] Comprobado que `/panel-control` no aparece en ningún menú visible ni en el sitemap público
+- [ ] Conectado tu dominio propio (opcional pero recomendado para dar imagen profesional)
+- [ ] Verificado el sitio en [Google Search Console](https://search.google.com/search-console) para que aparezca en Google
+- [ ] Revisado las páginas legales (`Política de Privacidad`, `Condiciones de Uso`, `Protección de Datos`) con tu gestoría o asesor legal para confirmar razón social, CIF y domicilio fiscal exactos
+- [ ] Activado Google Analytics y comprobado que se ven visitas y eventos en tiempo real (tras aceptar el banner de cookies en tu propia visita)
+
+---
+
+## 📊 Qué se mide automáticamente en Google Analytics
+
+| Acción del visitante | Evento de Google Analytics |
+|---|---|
+| Pulsa "Llamar" (grúa) | `click_phone` |
+| Pulsa "WhatsApp" (grúa) | `click_whatsapp` |
+| Pulsa "Consultar por WhatsApp" (batería) | `click_whatsapp_bateria` |
+| Usa "¿Qué batería lleva mi coche?" | `click_whatsapp_bateria` |
+| Envía el formulario de grúa | `lead_form_submit` |
+| El formulario se guarda con éxito | `lead_form_success` |
+| Hay un error al enviar | `lead_form_error` |
+
+Todo esto vive únicamente en Google Analytics (ver la sección de arriba para consultarlo) — no se guarda en tu base de datos ni aparece en el panel de administración.
+
+---
+
+## 🛡️ Protección contra spam del formulario
+
+El formulario tiene 3 capas de seguridad para que no se llene de mensajes basura:
+1. **Campo trampa invisible**: si un robot lo rellena (los humanos no lo ven), su envío se descarta automáticamente
+2. **Límite de envíos**: máximo 5 solicitudes por minuto desde la misma conexión
+3. **Validación en el servidor**: se comprueba que el teléfono y el email tengan un formato válido antes de guardarlo
+
+---
+
+## 📁 Estructura del proyecto (por si en el futuro un programador continúa el trabajo)
+
+```
+gruas-luaidesa/
+├── app/
+│   ├── layout.tsx                      # Metadatos SEO globales + JSON-LD (grúa + baterías)
+│   ├── page.tsx                        # Página principal (Hero, Servicios, Baterías, Cobertura, Proceso, FAQ, Formulario)
+│   ├── globals.css                     # Estilos y paleta de colores
+│   ├── sitemap.ts / robots.ts          # SEO técnico (incluye fichas de baterías e ignora /panel-control)
+│   ├── middleware.ts                   # Protege /panel-control (exige sesión de Supabase Auth)
+│   ├── api/leads/route.ts              # Recibe el formulario de grúa, lo guarda en Supabase y avisa por email
+│   ├── api/admin/baterias/             # CRUD, borrado en lote e importación por Excel (requiere sesión)
+│   ├── baterias-coche-madrid/          # Tienda pública (listado con filtros + ficha por batería)
+│   ├── panel-control/                  # Panel de administración privado (login, dashboard, CRUD de baterías)
+│   └── politica-privacidad/, condiciones-uso/, proteccion-datos/  # Páginas legales
+├── components/
+│   ├── icons.tsx                        # Iconos propios (sin emojis)
+│   ├── Navbar.tsx / Footer.tsx / LeadForm.tsx / CookieBanner.tsx / FloatingWhatsApp.tsx / GoogleAnalytics.tsx / Reveal.tsx
+│   ├── BateriaCard.tsx / BateriasStore.tsx / CocheBateriaModal.tsx / BateriaWhatsAppButton.tsx  # Tienda pública
+│   └── admin/BateriasTabla.tsx / BateriaForm.tsx / LogoutButton.tsx                              # Panel admin
+├── lib/
+│   ├── analytics.ts                     # Eventos de Google Analytics (llamadas, WhatsApp, formulario)
+│   ├── email.ts                         # Envío del email de aviso (Resend) en cada solicitud de grúa
+│   ├── supabase.ts                      # Conexión a la base de datos (leads, baterías) — solo servidor
+│   ├── supabase-browser.ts              # Cliente de Auth para el navegador (login/recuperar password)
+│   ├── supabase-server.ts               # Cliente de Auth para Server Components / API routes
+│   └── admin-auth.ts                    # Comprueba la sesión en las API routes de /api/admin
+├── supabase/
+│   └── schema.sql                       # Estructura de la base de datos (leads, baterias)
+└── .env.local.example                   # Plantilla de configuración
+```
+
+---
+
+## 🎨 Paleta de colores (se mantiene la identidad original)
+
+| Color | Código | Uso |
 |---|---|---|
-| **Super Admin** | Todos los restaurantes: productos, categorías, tema, secciones, usuarios, dominio | Middleware + políticas RLS (`profiles.role = 'super_admin'`) |
-| **Admin de restaurante** (`owner` en BD) | Solo su restaurante: productos, categorías, ofertas | Middleware + RLS: cada fila de `products`/`categories` solo editable si `restaurant_id` coincide con el de su perfil |
-| **Cliente final** | Página pública `/[slug]`, sin login | Lectura pública vía RLS `for select using (true)` |
-
-La seguridad real vive en **Supabase (RLS)** — aunque alguien manipule las
-peticiones desde el navegador, la base de datos rechaza escrituras fuera de
-su restaurante. `authorizeRestaurant()` en `src/app/admin/actions.ts` es una
-capa extra para dar mensajes de error claros, no la única defensa.
+| Dorado | `#C9A227` | Color principal de marca |
+| Dorado claro | `#F0C93A` | Textos destacados |
+| Negro marca | `#1A1208` | Fondo principal |
+| Marrón oscuro | `#2C1F0A` | Fondo secundario |
+| Crema | `#FAF6EC` | Texto sobre fondo oscuro |
 
 ---
 
-## 6. PWA
-
-- `public/manifest.json` + `next-pwa` (en `next.config.js`) generan el
-  Service Worker en cada `npm run build`. Desactivado en desarrollo.
-- Reemplaza los iconos placeholder en `public/icons/` por los de tu marca.
-- El favicon de **cada restaurante** se gestiona en
-  `/admin/restaurantes/[id]` → General → Favicon (no en `public/icons`).
-
----
-
-## 7. Desplegar en Vercel
-
-1. `npm run build` local sin errores (paso obligatorio, ver sección 3).
-2. Sube el proyecto a GitHub/GitLab (`.env.local` ya está en `.gitignore`).
-3. [vercel.com](https://vercel.com) → **Add New → Project** → importa el repo.
-4. **Environment Variables**: las mismas 4 de tu `.env.local`.
-5. **Deploy**.
-
----
-
-## 8. Estructura del proyecto
-
-```
-restaurant-saas/
-├── supabase/schema.sql
-├── scripts/seed.mjs
-├── public/
-├── src/
-│   ├── middleware.ts             ← protección de /admin por rol
-│   ├── lib/                      ← Supabase, queries, utils
-│   ├── types/index.ts
-│   ├── components/
-│   │   ├── public/               ← Banner, Footer, menú público
-│   │   └── admin/                ← TODO el panel (Super Admin + Admin de restaurante)
-│   └── app/
-│       ├── page.tsx               ← landing del SaaS
-│       ├── [slug]/                 ← página pública de cada restaurante
-│       └── admin/
-│           ├── login/page.tsx      ← login único, FUERA del layout protegido
-│           └── (dashboard)/        ← protegido; el login no queda envuelto aquí
-│               ├── page.tsx         ← lista (Super Admin) o workspace (Admin de restaurante)
-│               └── restaurantes/[id]/page.tsx  ← editor completo (solo Super Admin)
-```
-
-`(dashboard)` con paréntesis es un *route group*: no aparece en la URL, solo
-agrupa qué páginas quedan bajo el layout protegido — así el login nunca
-queda atrapado detrás de su propia protección.
-
----
-
-## 9. Personalización rápida
-
-- **Nombre/marca del SaaS**: `src/app/layout.tsx` y `src/app/page.tsx`.
-- **Nuevo tipo de sección**: `SectionType` en `src/types/index.ts`, su render
-  en `src/app/[slug]/page.tsx`, y `SECTION_LABELS` en
-  `src/components/admin/SectionsManager.tsx`.
-- **Moneda**: `formatPrice` en `src/lib/utils.ts`.
-- **Alérgenos**: `COMMON_ALLERGENS` en `src/lib/utils.ts` + tabla `products`.
-- **Dar a un Admin de restaurante acceso a Secciones/Tema**: en
-  `src/app/admin/actions.ts` cambia `requireSuperAdmin()` por
-  `authorizeRestaurant(restaurantId)` en esas funciones, y añade la pestaña
-  a `OwnerWorkspace.tsx`.
-
----
-
-## 10. Soporte técnico rápido
-
-### "No compilaba / no funcionaba nada en absoluto" (bug real, corregido)
-
-Había **dos errores de TypeScript** que rompían `npm run build` por
-completo: uno en `SectionsManager.tsx` (parámetro sin tipo) y otro en
-`tailwind.config.ts` (el tipo `Config` no aceptaba las funciones de color
-dinámico). Un build que falla significa que **Vercel tampoco puede desplegar
-nada** — de ahí que "no funcionara nada". Ya corregido y verificado con un
-build real (`✓ Compiled successfully`, 7/7 páginas generadas).
-
-**Cómo evitar que te vuelva a pasar sin darte cuenta:** corre siempre
-`npm run build` antes de desplegar (sección 3). Si fallara por algo nuevo, el
-error que muestra en rojo es el que hay que arreglar — es información
-mucho más precisa que "no funciona nada".
-
-### "No se encontró tu restaurante" / "no me deja administrarlo" (causa raíz final, corregida)
-
-**Diagnóstico confirmado con tus propios datos:** el restaurante SÍ existe
-(lo confirmaste por SQL), pero la consulta de la app —que respeta las
-políticas de seguridad (RLS)— no lo encontraba. Eso solo puede pasar si la
-política de "restaurants" (que depende de una función auxiliar,
-`current_user_restaurant_id()`) no se está evaluando igual en tu proyecto de
-Supabase que en un entorno limpio de referencia.
-
-**Corrección aplicada (elimina la dependencia de esa función por completo):**
-Ahora **todas** las lecturas y escrituras del panel `/admin` (productos,
-categorías, secciones, restaurantes, tema, usuarios) usan el cliente de
-**service role** de Supabase, que **ignora las políticas RLS** — la
-autorización real ahora la hace el propio código de la app
-(`authorizeRestaurant()` / `requireSuperAdmin()` en
-`src/app/admin/actions.ts`), apoyándose únicamente en la política RLS más
-simple y ya comprobada de todas: *"solo puedes leer tu propio perfil"*
-(`id = auth.uid()`). Esto hace que el panel funcione igual sin importar
-particularidades de cada proyecto de Supabase.
-
-> Las políticas RLS siguen activas y protegiendo la base de datos si alguien
-> intenta acceder directamente con la clave pública (`anon key`) por fuera de
-> la app — solo que el panel `/admin` ya no depende de ellas para funcionar.
-
-Si después de actualizar a esta versión sigues sin poder administrar tu
-restaurante, el problema ya no puede ser de RLS — sería otra cosa (revisa la
-consola del navegador y la terminal, y mándame el error exacto).
-
-### "No se encontró tu restaurante" al entrar como Admin de restaurante (restaurante realmente eliminado)
-
-**Causa real (reproducida y confirmada):** tu cuenta tiene un
-`restaurant_id` asignado, pero ese restaurante ya **no existe** — lo más
-común es que se haya eliminado después de asignarlo (pasa fácil mientras se
-está probando y creando/borrando restaurantes).
-
-**Corregido:** ahora, al crear un acceso o reasignar un usuario, el sistema
-verifica primero que el restaurante exista de verdad — si fue eliminado, da
-un error claro en el momento en vez de dejar la cuenta apuntando a algo que
-ya no está. Además, el mensaje que ve el Admin de restaurante ahora muestra
-el `id` exacto para que el Super Admin pueda diagnosticarlo al toque.
-
-**Solución inmediata si ya te pasó:** el Super Admin debe entrar al
-restaurante correcto (o crear uno nuevo si el original se borró) →
-pestaña **Usuarios** → "¿Un usuario quedó sin restaurante asignado?" → poner
-el correo del Admin → confirmar. Luego ese Admin debe volver a iniciar sesión.
-
-### "Entro como Admin de restaurante pero no me deja administrarlo"
-
-Probado exhaustivamente (ver sección 11) contra una base de datos real: el
-sistema de permisos funciona correctamente. Si te pasa esto, casi siempre es
-una de estas dos causas:
-
-1. **Tu cuenta se creó ANTES de que existiera el arreglo de "restaurante sin
-   asignar"** (ver el punto de abajo) → usa la herramienta de reasignación.
-2. **Estás corriendo una versión anterior del proyecto** (sin este arreglo) →
-   asegúrate de haber borrado la carpeta vieja por completo y usar este ZIP.
-
-Si tras comprobar ambas sigue sin funcionar, dime **exactamente** qué ves:
-¿un mensaje en pantalla (cuál, palabra por palabra)? ¿un error al hacer clic
-en algo (cuál botón, qué dice el error)? ¿te regresa al login solo? Con eso
-puedo ir directo al punto exacto.
-
-### "Sin restaurante asignado" al entrar como Admin de restaurante
-
-Corregido: al crear el acceso desde la pestaña "Usuarios" ahora se usa
-`upsert` (antes un `update` podía fallar en silencio por una condición de
-carrera con el trigger de Supabase). Si tienes un usuario que quedó mal
-asignado (de antes de este arreglo, o creado directo en Supabase), en
-`/admin/restaurantes/[id]` → **Usuarios** hay una sección
-**"¿Un usuario quedó sin restaurante asignado?"** — pon su correo y en un
-clic queda arreglado, sin tocar SQL.
-
-### Bucle de redirección / pantalla en blanco al entrar a `/admin/login`
-
-Corregido con el *route group* `(dashboard)` (sección 8). Si extraes una
-versión nueva del proyecto, **borra por completo** la carpeta anterior antes
-de descomprimir (no descomprimas encima) y luego:
-```bash
-rm -rf .next node_modules
-npm install
-npm run dev
-```
-
-### Olvidé la contraseña de un usuario
-
-Supabase → **Authentication → Users** → busca el correo → restablece la
-contraseña ahí directamente.
-
-### Otros errores comunes
-
-- **"No autorizado" al guardar algo**: revisa el `role` del usuario en
-  `profiles` y, si es Admin de restaurante, que tenga `restaurant_id`.
-- **Imágenes no cargan en producción**: confirma `*.supabase.co` en
-  `images.remotePatterns` de `next.config.js` (ya incluido).
-- **El menú público no refleja un cambio reciente**: usa
-  `revalidate = 30` en `src/app/[slug]/page.tsx` (baja el número o recarga
-  forzando caché para verlo al instante).
-
----
-
-## 11. Qué se verificó antes de entregar esta versión
-
-- `npm install` real (540 paquetes, sin errores) y `npm run build` real →
-  **compila sin errores**, genera las 7 páginas.
-- `npm run start` real con pruebas de rutas (`/`, `/admin`, `/admin/login`,
-  `/config-requerida`, `/demo`).
-- **Se instaló PostgreSQL real y se cargó exactamente el archivo
-  `supabase/schema.sql`** (el mismo que tú ejecutas en Supabase), con una
-  simulación fiel de `auth.uid()` y del rol `authenticated` que usa Supabase,
-  para probar las políticas de seguridad (RLS) tal cual funcionan en
-  producción. Se verificó, con datos reales:
-  - Un Admin de restaurante puede leer y escribir productos/categorías **en
-    su propio restaurante**.
-  - Ese mismo Admin **no puede** escribir en el restaurante de otro (la base
-    de datos lo rechaza, no solo la app).
-  - El disparador `handle_new_user` crea el perfil automáticamente al crear
-    un usuario.
-  - El `upsert` de `createOwnerUser` asigna correctamente el `restaurant_id`
-    incluso justo después de que el disparador crea la fila.
-
-Lo que **no** se pudo probar en este entorno (por no tener un proyecto
-Supabase Cloud real disponible aquí): el flujo completo a través de la API
-real de Supabase Auth (GoTrue) y el navegador. Si después de todo esto algo
-sigue sin funcionar, es casi seguro que es específico de tu proyecto de
-Supabase (revisa la sección 10) y no un bug del código — pero dime el mensaje
-de error exacto y lo reviso.
-
-## 12. Novedades de esta versión (UX, accesibilidad, y arreglos)
-
-- **Categorías**: se confirmó y reforzó que la creación funciona (usa el
-  mismo cliente de servicio ya blindado para productos).
-- **Botón grande "Ver mi menú público"** en el panel del Admin de restaurante
-  — ya no depende de un dato aparte, usa directamente el `slug` del
-  restaurante que ya se cargó.
-- **Aislamiento reforzado**: se auditó que un Admin de restaurante nunca
-  dispara ninguna consulta que traiga la lista de otros restaurantes (la
-  verificación de rol ocurre *antes* de esa consulta, en el servidor).
-- **Login simplificado**: se quitó el texto explicativo, ahora es solo
-  correo + contraseña.
-- **Nueva pestaña "Vista previa" para el Super Admin**: muestra el menú
-  público dentro del mismo panel (con toggle móvil/escritorio y botón de
-  actualizar), para ver los cambios sin saltar de pestaña.
-- **Pestañas del editor de restaurante reordenadas** en un flujo más
-  natural: General → Diseño y tema → Secciones → Productos → Categorías →
-  Usuarios → Vista previa.
-- **Accesibilidad**: botones de solo ícono ahora tienen `aria-label`
-  descriptivo, pestañas usan `role="tab"`/`aria-selected`, inputs del login
-  tienen `aria-label`.
-
----
-## 13. Arreglos de esta versión: categorías, productos invisibles, 404 y modales
-
-### Categorías y menú público usaban la misma política RLS problemática
-
-Tanto la creación de categorías como **toda la página pública** (`/[slug]`)
-dependían de la política RLS compuesta de "restaurants" (la misma que ya
-habíamos identificado como poco confiable en ciertos proyectos de Supabase).
-Ahora la página pública también usa el cliente de servicio para leer
-restaurante/categorías/productos/secciones, con el control de "¿está
-activo?" hecho explícitamente en código (`src/lib/data.ts`), no vía RLS. Esto
-corrige de raíz:
-- Categorías que no se creaban.
-- El **404 al abrir el menú público** desde el panel del Admin de restaurante.
-
-### Productos creados que no aparecían en el menú público
-
-Causa real: un producto **sin categoría asignada** (el valor por defecto del
-formulario) simplemente desaparecía de la sección "Nuestro menú", porque esa
-sección solo mostraba productos agrupados por categoría. Corregido en
-`src/components/public/MenuSection.tsx`: ahora cualquier producto disponible
-se muestra siempre, tenga o no categoría asignada (los sin categoría
-aparecen bajo un grupo "Más"). También se corrigió que la sección entera
-desaparecía si el restaurante aún no tenía ninguna categoría creada, aunque
-sí tuviera productos.
-
-### Modales de producto que se superponían con el resto de la pantalla
-
-Causa real: la ventana emergente usaba `position: sticky` para su cabecera y
-pie dentro de un contenedor que en realidad no controlaba su propio scroll,
-lo que en ciertos navegadores/tamaños de pantalla hacía que el encabezado y
-el fondo se mezclaran. Corregido: ahora el modal es una columna
-(encabezado fijo / cuerpo con scroll propio / pie fijo), con una capa de
-apilamiento aislada (`isolate`, `z-[100]`), bloqueo de scroll del fondo
-mientras está abierto, cierre con tecla Escape, y cierre al hacer clic fuera
-de la tarjeta. Se aplicó el mismo arreglo al modal de "Nuevo restaurante".
-
-## 14. Funciones nuevas de esta versión
-
-### ⚠️ Importante: ejecuta la migración del schema
-
-Esta versión agrega una columna nueva y un tipo de sección nuevo. Si ya
-tenías el proyecto de Supabase configurado de una versión anterior, entra al
-**SQL Editor** y ejecuta **solo el bloque final** de `supabase/schema.sql`
-(la sección "MIGRACIÓN", al final del archivo) — es seguro volver a correr
-todo el archivo completo también, no duplica nada.
-
-### Categorías editables
-
-Ahora se puede renombrar una categoría existente (ícono de lápiz), tanto
-desde el panel del Admin de restaurante como desde el del Super Admin —
-ambos comparten el mismo componente, así que el arreglo aplica a los dos.
-
-### Detalle de producto (clic en la tarjeta)
-
-Cada producto del menú público ahora es clicable y abre una página propia
-(`/[slug]/producto/[id]`) con foto grande, galería, descripción completa,
-ingredientes y alérgenos.
-
-### Varias fotos por producto
-
-En el formulario de producto ahora hay dos secciones de imagen: **"Foto
-principal"** (la que se ve en la lista del menú) y **"Fotos adicionales"**
-(hasta 6, se ven como galería en la página de detalle).
-
-### Publicado / no publicado
-
-El check "Disponible en el menú" ahora se llama **"Publicado"** — un
-producto no publicado no aparece en ningún lado del menú público, pero sigue
-guardado en el panel para publicarlo cuando quieras.
-
-### Menú del día (sección opcional)
-
-Nueva sección configurable desde el Super Admin (pestaña Secciones →
-"Menú del día"): se define por "tiempos" (Primero, Segundo, Principal,
-Postre o café...), cada uno con su lista de platos a elegir y si es
-obligatorio u opcional — por ejemplo, puedes quitar "Segundo" si tu
-restaurante no lo maneja, o dejarlo pero desmarcado como "opcional". Se
-puede poner un precio único para todo el menú del día.
-
-### Rediseño del menú público
-
-- Banner con degradado más moderno y muestra el horario si lo configuraste.
-- Tarjetas de producto con hover, flecha indicando que son clicables, y
-  descripción recortada a 2 líneas.
-- Recomendaciones del chef ahora en carrusel horizontal deslizable.
-- Navegación pegajosa de categorías en la parte superior del menú (salta
-  directo a "Postres", "Bebidas", etc. en menús largos).
-- Sigue siendo 100% responsive y usa el tema de colores/tipografía que
-  configura el Super Admin para cada restaurante.
-
----
-
-Hecho con Next.js 14 (App Router), Supabase (Auth + Postgres + Storage + RLS),
-Tailwind CSS y next-pwa.
+## ❓ ¿Algo no funciona?
+
+- **El formulario no guarda nada en Supabase** → revisa que `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` en `.env.local` (o en Vercel) sean exactamente los que copiaste de tu proyecto, sin espacios extra
+- **No veo visitas en Google Analytics** → recuerda que las estadísticas solo se activan cuando el propio visitante acepta el banner de cookies; prueba a aceptar el banner tú mismo en una visita real
+- **Los botones de llamada no hacen nada al probarlos en el ordenador** → es normal, el `tel:` y `wa.me` solo abren aplicaciones reales en un móvil; en el ordenador puede que no pase nada visible o te pregunte con qué programa abrirlo
+- **No puedo entrar a `/panel-control`, me redirige siempre al login** → revisa que `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` estén bien puestas en `.env.local` (o en Vercel) y que hayas creado tu usuario en Supabase → Authentication → Users con "Auto Confirm User" marcado
+- **El email de recuperar contraseña no llega** → revisa spam; si sigue sin llegar, es el límite de envíos del email de prueba de Supabase — conecta un proveedor de email propio en Authentication → Providers → Email para producción
+- **Al importar el Excel me dice que faltan columnas / todas las filas fallan** → confirma que la primera fila del Excel es la cabecera con los nombres de columna (`modelo`, `imagen`, `marca`, `precio`, `amperaje`, `start_stop`) y que no hay filas vacías por encima
+- **Las imágenes de las baterías no se ven** → el campo "imagen" debe ser una URL pública y directa a la foto (que termine en `.jpg`, `.png`, etc. y se pueda abrir sola en el navegador), no un enlace a una carpeta de Drive ni una foto adjunta
+- **El listado de baterías está vacío o da error** → casi siempre es porque la tabla `baterias` no existe todavía en tu Supabase: ve a SQL Editor y ejecuta la parte de `baterias` de `supabase/schema.sql` (ver Paso 2)
+- **No me llega el email del formulario a Gmail** → revisa que `RESEND_API_KEY` y `NOTIFICATION_EMAIL` estén bien puestas (en local y en Vercel), revisa spam, y comprueba en resend.com → "Logs" si el envío se intentó y qué error dio. Recuerda: aunque el email falle, el lead se guarda igualmente en Supabase
