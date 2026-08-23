@@ -33,16 +33,19 @@ const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "gruasluaidesa@gmail.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Grúas Luaidesa | Servicio de Grúa 24h en Madrid y toda España",
+    default: "Grúas Luaidesa | Grúa 24h y Baterías de Coche a Domicilio en Madrid",
     template: "%s | Grúas Luaidesa",
   },
   description:
-    "Servicio de grúa y rescate vehicular en Madrid y toda España. Disponibles 24 horas, 7 días a la semana. Respuesta rápida, precio cerrado y factura legal. Llámanos ahora.",
+    "Servicio de grúa y rescate vehicular 24h en Madrid y toda España, y venta e instalación de baterías de coche a domicilio en Madrid y alrededores. Respuesta rápida, precio cerrado y factura legal.",
   keywords: [
     "grúas Madrid", "servicio de grúa Madrid", "grúa 24 horas Madrid",
     "rescate vehicular Madrid", "grúas España", "auxilio en carretera Madrid",
     "grúa económica Madrid", "remolque coche Madrid", "grúa avería Madrid",
     "servicio grúa urgente", "grúas Luaidesa",
+    "baterías de coche Madrid", "batería de coche a domicilio Madrid",
+    "cambio de batería coche Madrid", "batería Start-Stop Madrid",
+    "instalación batería coche a domicilio",
   ],
   authors: [{ name: "Grúas Luaidesa" }],
   creator: "Grúas Luaidesa",
@@ -53,14 +56,14 @@ export const metadata: Metadata = {
     locale: "es_ES",
     url: SITE_URL,
     siteName: "Grúas Luaidesa",
-    title: "Grúas Luaidesa | Servicio de Grúa 24h en Madrid y toda España",
-    description: "Servicio de grúa y rescate vehicular en Madrid y toda España. Respuesta rápida, precio cerrado y factura legal.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Grúas Luaidesa - Servicio de Grúa 24h" }],
+    title: "Grúas Luaidesa | Grúa 24h y Baterías de Coche a Domicilio",
+    description: "Servicio de grúa y rescate vehicular 24h, y venta e instalación de baterías de coche a domicilio en Madrid y alrededores.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Grúas Luaidesa - Grúa 24h y Baterías a domicilio" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Grúas Luaidesa | Servicio de Grúa 24h",
-    description: "Servicio de grúa y rescate vehicular en Madrid y toda España.",
+    title: "Grúas Luaidesa | Grúa 24h y Baterías de Coche a Domicilio",
+    description: "Servicio de grúa y rescate vehicular 24h, y venta e instalación de baterías de coche a domicilio.",
     images: ["/og-image.jpg"],
   },
   alternates: { canonical: SITE_URL },
@@ -103,6 +106,17 @@ const serviceSchema = {
   areaServed: { "@type": "Country", name: "España" },
   description: "Rescate vehicular, traslado de vehículos y asistencia en carretera disponible las 24 horas.",
   serviceType: "Grúa y asistencia en carretera",
+};
+
+const bateriasServiceSchema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Venta e instalación de baterías de coche a domicilio",
+  provider: { "@type": "LocalBusiness", name: "Grúas Luaidesa" },
+  areaServed: { "@type": "City", name: "Madrid" },
+  description:
+    "Venta e instalación a domicilio de baterías de coche de todas las marcas y amperajes, incluidas las de sistema Start-Stop, en Madrid y alrededores.",
+  serviceType: "Venta e instalación de baterías de coche",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

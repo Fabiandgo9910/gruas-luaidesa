@@ -64,3 +64,86 @@ select
 from public.leads
 group by 1
 order by 1 desc;
+
+-- ============================================================
+-- AMPLIACIÓN — Tienda de Baterías + Control de Contactos
+-- ============================================================
+
+-- ------------------------------------------------------------
+-- Tabla de baterías (catálogo de la tienda)
+-- ------------------------------------------------------------
+create table if not exists public.baterias (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+
+  modelo        text not null,
+  marca         text,
+  amperaje      numeric,              -- Ah
+  precio        numeric,              -- EUR
+  start_stop    boolean not null default false,
+  imagen_url    text not null,
+  slug          text unique not null,
+
+  publicado     boolean not null default true
+);
+
+comment on table public.baterias is 'Catálogo de baterías de coche vendidas e instaladas a domicilio';
+
+create index if not exists baterias_publicado_idx on public.baterias (publicado);
+create index if not exists baterias_marca_idx on public.baterias (marca);
+create index if not exists baterias_start_stop_idx on public.baterias (start_stop);
+create index if not exists baterias_created_at_idx on public.baterias (created_at desc);
+
+-- Mantiene updated_at al día automáticamente en cada UPDATE
+create or replace function public.set_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists baterias_set_updated_at on public.baterias;
+create trigger baterias_set_updated_at
+  before update on public.baterias
+  for each row execute function public.set_updated_at();
+
+alter table public.baterias enable row level security;
+-- Igual que "leads": sin policies para anon/authenticated. Todo el
+-- acceso (lectura pública en la tienda incluida) pasa por el backend
+-- con la service_role key, que bypasea RLS. El frontend nunca lee
+-- Supabase directamente.
+
+-- ------------------------------------------------------------
+-- Tabla de eventos de contacto (control de llamadas / WhatsApp / formulario)
+-- ------------------------------------------------------------
+create table if not exists public.eventos_contacto (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+
+  tipo        text not null check (tipo in ('llamada','whatsapp','whatsapp_bateria','formulario')),
+  origen      text,          -- navbar | hero | flotante | sticky_mobile | ficha_bateria | tienda_baterias...
+  pagina      text,          -- ruta desde la que se generó el contacto
+  detalle     text           -- p.ej. modelo de batería consultado
+);
+
+comment on table public.eventos_contacto is 'Registro de cada clic de llamada/WhatsApp y envío de formulario, para medir conversión real';
+
+create index if not exists eventos_contacto_created_at_idx on public.eventos_contacto (created_at desc);
+create index if not exists eventos_contacto_tipo_idx on public.eventos_contacto (tipo);
+
+alter table public.eventos_contacto enable row level security;
+-- Sin policies públicas: solo se inserta vía API route con service_role.
+
+-- Vista-resumen para el panel de administración
+create or replace view public.eventos_resumen as
+select
+  date_trunc('day', created_at) as dia,
+  count(*) filter (where tipo = 'llamada') as llamadas,
+  count(*) filter (where tipo = 'whatsapp') as whatsapp_gruas,
+  count(*) filter (where tipo = 'whatsapp_bateria') as whatsapp_baterias,
+  count(*) filter (where tipo = 'formulario') as formularios
+from public.eventos_contacto
+group by 1
+order by 1 desc;

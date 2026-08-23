@@ -9,7 +9,8 @@ const PHONE = process.env.NEXT_PUBLIC_PHONE_NUMBER || "+34 674 08 81 95";
 const WA_MSG = encodeURIComponent("Hola, necesito una grúa urgente.");
 
 const NAV_LINKS = [
-  { href: "/#servicios", label: "Servicios" },
+  { href: "/#servicios", label: "Grúa" },
+  { href: "/baterias-coche-madrid", label: "Baterías" },
   { href: "/#cobertura", label: "Cobertura" },
   { href: "/#proceso", label: "Cómo trabajamos" },
   { href: "/#contacto", label: "Contacto" },
@@ -42,57 +43,57 @@ export default function Navbar() {
     <>
       <header className="fixed top-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-b border-gold/15 h-16 flex items-center">
         <div className="max-w-container mx-auto px-5 flex items-center justify-between w-full">
-          <Link href="/" className="flex items-baseline gap-2 leading-none group">
-            <span className="font-condensed text-xl font-black text-sand-100 tracking-wide uppercase">
-              Grúas
-            </span>
-            <span className="font-condensed text-xl font-black text-gold tracking-[0.1em] uppercase">
-              Luaidesa
-            </span>
-          </Link>
+        <Link href="/" className="flex items-baseline gap-2 leading-none group">
+          <span className="font-condensed text-xl font-black text-sand-100 tracking-wide uppercase">
+            Grúas
+          </span>
+          <span className="font-condensed text-xl font-black text-gold tracking-[0.1em] uppercase">
+            Luaidesa
+          </span>
+        </Link>
 
-          <nav className="hidden lg:flex items-center gap-9">
-            {NAV_LINKS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sand-100/60 hover:text-gold transition-colors text-[13px] font-medium uppercase tracking-widest"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="hidden lg:flex items-center gap-3">
-            <a
-              href={`tel:${PHONE.replace(/\s/g, "")}`}
-              onClick={() => trackPhone("navbar")}
-              className="flex items-center gap-2 text-[13px] font-semibold text-sand-100/90 border border-gold/25 rounded-full pl-3.5 pr-4 py-2 hover:border-gold hover:text-gold transition-colors"
+        <nav className="hidden lg:flex items-center gap-9">
+          {NAV_LINKS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sand-100/60 hover:text-gold transition-colors text-[13px] font-medium uppercase tracking-widest"
             >
-              <IconPhone className="w-4 h-4" /> {PHONE}
-            </a>
-            <a
-              href={`https://wa.me/${WA}?text=${WA_MSG}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => trackWhatsApp("navbar")}
-              className="flex items-center gap-2 text-[13px] font-semibold bg-gold hover:bg-gold-light text-ink-900 rounded-full pl-3.5 pr-4 py-2 transition-colors"
-            >
-              <IconWhatsApp className="w-4 h-4" /> WhatsApp
-            </a>
-          </div>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
 
-          <button
-            type="button"
-            className="lg:hidden text-gold p-2 -mr-2"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={open}
-            aria-controls="mobile-menu"
+        <div className="hidden lg:flex items-center gap-3">
+          <a
+            href={`tel:${PHONE.replace(/\s/g, "")}`}
+            onClick={() => trackPhone("navbar")}
+            className="flex items-center gap-2 text-[13px] font-semibold text-sand-100/90 border border-gold/25 rounded-full pl-3.5 pr-4 py-2 hover:border-gold hover:text-gold transition-colors"
           >
-            {open ? <IconClose className="w-6 h-6" /> : <IconMenu className="w-6 h-6" />}
-          </button>
+            <IconPhone className="w-4 h-4" /> {PHONE}
+          </a>
+          <a
+            href={`https://wa.me/${WA}?text=${WA_MSG}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackWhatsApp("navbar")}
+            className="flex items-center gap-2 text-[13px] font-semibold bg-gold hover:bg-gold-light text-ink-900 rounded-full pl-3.5 pr-4 py-2 transition-colors"
+          >
+            <IconWhatsApp className="w-4 h-4" /> WhatsApp
+          </a>
         </div>
+
+        <button
+          type="button"
+          className="lg:hidden text-gold p-2 -mr-2"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+        >
+          {open ? <IconClose className="w-6 h-6" /> : <IconMenu className="w-6 h-6" />}
+        </button>
+      </div>
       </header>
 
       {open && (

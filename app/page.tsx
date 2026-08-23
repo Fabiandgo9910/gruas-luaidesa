@@ -1,4 +1,5 @@
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import LeadForm from "@/components/LeadForm";
 import Reveal from "@/components/Reveal";
 import Link from "next/link";
@@ -194,6 +195,60 @@ export default function Home() {
                 </article>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== BATERÍAS — sand-100 (claro, sección de negocio propia) ===== */}
+      <section id="baterias" className="py-24 sm:py-28 bg-sand-100">
+        <div className="max-w-container mx-auto px-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+            <Reveal>
+              <p className="text-gold-dark text-xs font-bold uppercase tracking-[4px] mb-3">También hacemos esto</p>
+              <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase text-ink-900 mb-6">
+                Baterías de coche, <span className="text-gold">instaladas a domicilio</span>
+              </h2>
+              <p className="text-ink-700/60 leading-relaxed mb-8 max-w-md">
+                Vendemos e instalamos baterías de coche de todas las marcas y amperajes —incluidas las de
+                sistema <strong className="text-gold-dark">Start-Stop</strong>— donde tú estés, en Madrid y
+                alrededores. Sin necesidad de ir a ningún taller.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3.5">
+                <Link
+                  href="/baterias-coche-madrid"
+                  className="flex items-center justify-center gap-3 bg-ink-900 hover:bg-ink-700 text-sand-100 font-condensed font-black text-base uppercase tracking-wide rounded-full px-7 py-3.5 transition-all hover:-translate-y-0.5 shadow-gold"
+                >
+                  Ver catálogo de baterías
+                </Link>
+                <a
+                  href={`https://wa.me/${WA}?text=${encodeURIComponent("Hola, quiero saber qué batería lleva mi coche")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-3 border-2 border-ink-900/15 hover:border-ink-900/40 text-ink-900 font-condensed font-black text-base uppercase tracking-wide rounded-full px-7 py-3.5 transition-all"
+                >
+                  <IconWhatsApp className="w-4 h-4 text-whatsapp" /> Consultar por WhatsApp
+                </a>
+              </div>
+            </Reveal>
+
+            <Reveal delay={120}>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { Icon: IconBolt, title: "Con o sin Start-Stop", desc: "Compatibles con cualquier sistema de tu vehículo." },
+                  { Icon: IconClock, title: "Instalación en el momento", desc: "Te la cambiamos in situ, sin dejar el coche en ningún sitio." },
+                  { Icon: IconTag, title: "Precio por WhatsApp", desc: "Consulta el precio exacto de cada modelo al instante." },
+                  { Icon: IconShield, title: "Todas las marcas", desc: "Amplio catálogo filtrable por marca y amperaje." },
+                ].map((f) => (
+                  <div key={f.title} className="bg-sand-200 border border-ink-900/10 rounded-2xl p-5">
+                    <div className="w-10 h-10 rounded-lg bg-gold/10 border border-gold/25 flex items-center justify-center text-gold-dark mb-3">
+                      <f.Icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-condensed font-bold text-sm text-ink-900 uppercase mb-1">{f.title}</h3>
+                    <p className="text-xs text-ink-700/50 leading-relaxed">{f.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -412,38 +467,7 @@ export default function Home() {
         </a>
       </div>
 
-      {/* ===== FOOTER — ink-900 (oscuro, ancla el final) ===== */}
-      <footer className="bg-ink-900 border-t border-gold/15 py-14 pb-28 md:pb-14">
-        <div className="max-w-container mx-auto px-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-            <div>
-              <p className="font-condensed font-black text-2xl text-gold-light uppercase tracking-wider mb-3">Grúas Luaidesa</p>
-              <p className="text-sand-100/40 text-sm leading-relaxed max-w-xs">
-                Servicio de grúa y rescate vehicular en Madrid y toda España. Seguridad, rapidez y factura legal en cada servicio.
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-gold-dark mb-4">Legal</p>
-              <ul className="space-y-2">
-                <li><Link href="/politica-privacidad" className="text-sand-100/40 hover:text-gold text-sm transition-colors">Política de Privacidad</Link></li>
-                <li><Link href="/condiciones-uso" className="text-sand-100/40 hover:text-gold text-sm transition-colors">Condiciones de Uso</Link></li>
-                <li><Link href="/proteccion-datos" className="text-sand-100/40 hover:text-gold text-sm transition-colors">Protección de Datos (RGPD)</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-gold-dark mb-4">Contacto urgente</p>
-              <a href={`tel:${PHONE_HREF}`} className="block text-gold-light font-semibold mb-1 hover:text-gold transition-colors">{PHONE}</a>
-              <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-whatsapp text-sm hover:text-whatsapp/80 transition-colors mb-3">
-                WhatsApp directo <IconChevronDown className="w-3 h-3 -rotate-90" />
-              </a>
-              <p className="text-xs text-sand-100/30">Disponible 24h · 7 días · Madrid y España</p>
-            </div>
-          </div>
-          <div className="border-t border-sand-100/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-sand-100/30">© {new Date().getFullYear()} Grúas Luaidesa. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
