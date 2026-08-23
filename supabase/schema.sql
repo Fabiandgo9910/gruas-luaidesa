@@ -66,7 +66,7 @@ group by 1
 order by 1 desc;
 
 -- ============================================================
--- AMPLIACIÓN — Tienda de Baterías + Control de Contactos
+-- AMPLIACIÓN — Tienda de Baterías
 -- ============================================================
 
 -- ------------------------------------------------------------
@@ -115,35 +115,3 @@ alter table public.baterias enable row level security;
 -- con la service_role key, que bypasea RLS. El frontend nunca lee
 -- Supabase directamente.
 
--- ------------------------------------------------------------
--- Tabla de eventos de contacto (control de llamadas / WhatsApp / formulario)
--- ------------------------------------------------------------
-create table if not exists public.eventos_contacto (
-  id          uuid primary key default gen_random_uuid(),
-  created_at  timestamptz not null default now(),
-
-  tipo        text not null check (tipo in ('llamada','whatsapp','whatsapp_bateria','formulario')),
-  origen      text,          -- navbar | hero | flotante | sticky_mobile | ficha_bateria | tienda_baterias...
-  pagina      text,          -- ruta desde la que se generó el contacto
-  detalle     text           -- p.ej. modelo de batería consultado
-);
-
-comment on table public.eventos_contacto is 'Registro de cada clic de llamada/WhatsApp y envío de formulario, para medir conversión real';
-
-create index if not exists eventos_contacto_created_at_idx on public.eventos_contacto (created_at desc);
-create index if not exists eventos_contacto_tipo_idx on public.eventos_contacto (tipo);
-
-alter table public.eventos_contacto enable row level security;
--- Sin policies públicas: solo se inserta vía API route con service_role.
-
--- Vista-resumen para el panel de administración
-create or replace view public.eventos_resumen as
-select
-  date_trunc('day', created_at) as dia,
-  count(*) filter (where tipo = 'llamada') as llamadas,
-  count(*) filter (where tipo = 'whatsapp') as whatsapp_gruas,
-  count(*) filter (where tipo = 'whatsapp_bateria') as whatsapp_baterias,
-  count(*) filter (where tipo = 'formulario') as formularios
-from public.eventos_contacto
-group by 1
-order by 1 desc;

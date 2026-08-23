@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 const NAV = [
   { href: "/panel-control", label: "Resumen" },
   { href: "/panel-control/baterias", label: "Baterías" },
-  { href: "/panel-control/contactos", label: "Contactos" },
 ];
 
 export default function PanelLayout({ children }: { children: React.ReactNode }) {

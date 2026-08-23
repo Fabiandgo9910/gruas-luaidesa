@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveLead } from "@/lib/supabase";
+import { enviarNotificacionLead } from "@/lib/email";
 
 // ============================================================
 // API Route: POST /api/leads
@@ -98,6 +99,20 @@ export async function POST(req: NextRequest) {
       referrer: referrer || "directo",
       user_agent: userAgent.substring(0, 300),
       ip,
+    });
+
+    // El email es informativo (best effort): si falla, no debe impedir
+    // que la solicitud se considere guardada — lo importante ya está
+    // en la base de datos. Se espera aquí (en vez de "fire and forget")
+    // porque en Vercel la función puede detenerse justo después de
+    // responder, y así nos aseguramos de que el envío se intente.
+    await enviarNotificacionLead({
+      nombre: nombre.trim(),
+      telefono: telefono.trim(),
+      email: email?.trim(),
+      ciudad: ciudad.trim(),
+      servicio: servicio.trim(),
+      mensaje: mensaje?.trim(),
     });
 
     return NextResponse.json({ success: true, id: lead?.id });

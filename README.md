@@ -235,11 +235,12 @@ Entra con el email y contraseña que creaste en el **Paso 2bis**. Guarda esta UR
 
 > Si el correo no llega: por defecto, Supabase envía estos emails desde su propio servidor con límites bajos (útil para probar, pero poco fiable para producción). Si esto te da problemas más adelante, en Supabase → **Authentication → Providers → Email** puedes conectar tu propio proveedor de email (por ejemplo Resend o SMTP de tu dominio) para que los envíos sean fiables.
 
-### El panel tiene 3 secciones
+### El panel tiene 2 secciones
 
-- **Resumen** (`/panel-control`) — Cifras de llamadas, WhatsApp (grúa y baterías), formularios enviados, y cuántas baterías tienes publicadas.
+- **Resumen** (`/panel-control`) — Cuántas solicitudes de grúa (leads) hay y cuántas baterías tienes en catálogo/publicadas.
 - **Baterías** (`/panel-control/baterias`) — El catálogo completo: crear, editar, publicar/ocultar, eliminar (una a una o en lote), e importar desde Excel.
-- **Contactos** (`/panel-control/contactos`) — El listado en tiempo real de cada llamada, WhatsApp y formulario recibido (ver más abajo).
+
+> Las llamadas y los clics de WhatsApp **no se guardan en la base de datos** — se miden solo en Google Analytics (ver la sección "Cómo ver los eventos en Google Analytics" más abajo).
 
 ### Crear una batería manualmente
 
@@ -298,44 +299,107 @@ En `/baterias-coche-madrid`, el cliente puede filtrar por:
 - Rango de amperaje
 - Solo baterías con sistema Start-Stop
 
-### Control de llamadas y contactos por WhatsApp
+---
 
-Cada vez que alguien pulsa un botón de llamar, un botón de WhatsApp (tanto de grúas como de baterías), o envía el formulario de contacto, queda registrado automáticamente en **Contactos** (`/panel-control/contactos`) con fecha, tipo, desde qué botón/página y, en el caso de baterías, qué modelo preguntó. Esto funciona **independientemente de Google Analytics** — así que tienes cifras exactas aunque el visitante bloquee cookies o rechace el banner de analítica.
+## 📧 Email automático por cada solicitud del formulario
 
+Además de guardarse siempre en Supabase (tabla `leads`, esto no ha cambiado), ahora cada envío del formulario **también te llega un email** a tu Gmail con los datos del cliente. Usa [Resend](https://resend.com), un servicio de envío de emails con plan gratuito (3.000 emails/mes) — no necesitas dar tu contraseña de Gmail ni tocar nada de tu cuenta de correo.
 
+### Configurarlo (5 minutos)
+
+1. Ve a [resend.com](https://resend.com) y crea una cuenta gratuita
+2. En el menú lateral, ve a **"API Keys"** → **"Create API Key"** → dale un nombre (p.ej. "Gruas Luaidesa") → cópiala (empieza por `re_`)
+3. Añade en tu `.env.local` (y en Vercel):
+   ```
+   RESEND_API_KEY=re_tu_api_key_aqui
+   NOTIFICATION_EMAIL=gruasluaidesa2@gmail.com
+   ```
+4. Deja `EMAIL_FROM` tal cual viene en el ejemplo — usa el dominio de pruebas de Resend, que funciona sin configurar nada más
+5. Prueba el formulario: te debería llegar un email a `gruasluaidesa@gmail.com` con nombre, teléfono, ciudad, servicio y mensaje del cliente, en segundos
+
+### ¿Y si quiero que el email no diga "onboarding@resend.dev" como remitente?
+
+Es opcional, pero si más adelante quieres que el remitente sea tu propio dominio (por ejemplo `avisos@gruasluaidesa.com`):
+1. En Resend → **"Domains"** → **"Add Domain"** → escribe tu dominio
+2. Añade los registros DNS que te indique en el panel de tu proveedor de dominio (parecido a conectar el dominio en Vercel)
+3. Cuando Resend lo marque como verificado, cambia `EMAIL_FROM` en tus variables de entorno a `Grúas Luaidesa <avisos@tudominio.com>`
+
+### Importante
+
+- Si `RESEND_API_KEY` o `NOTIFICATION_EMAIL` no están configuradas, el sitio **sigue funcionando igual**: el lead se guarda en Supabase de todas formas, simplemente no se envía el email. No es una pieza crítica que pueda romper el formulario.
+- Puedes seguir viendo y gestionando todos los leads igualmente desde Supabase → Table Editor → `leads`, con el email como aviso adicional en tiempo real.
+
+---
+
+## 📊 Cómo ver los eventos en Google Analytics
+
+Las llamadas y los clics de WhatsApp (tanto de la grúa como de la tienda de baterías) y los envíos de formulario se miden **solo en Google Analytics** — no se guardan en tu base de datos ni en el panel.
+
+### Ver las visitas y eventos en tiempo real
+
+1. Ve a [analytics.google.com](https://analytics.google.com) y entra en tu propiedad "Grúas Luaidesa"
+2. En el menú lateral izquierdo, pulsa **"Informes"** → **"Tiempo real"**
+3. Visita tu propia web en otra pestaña (y acepta el banner de cookies) — verás tu visita aparecer en segundos, y si pulsas algún botón de llamar/WhatsApp, el evento aparece en el bloque "Recuento de eventos por nombre de evento"
+
+### Ver el histórico de eventos (no solo en tiempo real)
+
+1. En el menú lateral, ve a **"Informes"** → **"Interacción"** → **"Eventos"**
+2. Verás una tabla con todos los nombres de evento y cuántas veces ha ocurrido cada uno en el periodo seleccionado (arriba a la derecha puedes cambiar el rango de fechas)
+3. Los eventos que vas a ver son:
+   - `click_phone` → clics en botones de llamar (grúa)
+   - `click_whatsapp` → clics en botones de WhatsApp (grúa)
+   - `click_whatsapp_bateria` → clics en "Consultar por WhatsApp" de una batería, o en "¿Qué batería lleva mi coche?"
+   - `lead_form_submit` / `lead_form_success` / `lead_form_error` → envíos del formulario de grúa (intentado / guardado con éxito / con error)
+
+### Ver el detalle de cada evento (qué botón, qué batería...)
+
+Cada evento lleva además una "etiqueta" (por ejemplo, qué botón exacto se pulsó, o el modelo de batería consultado). Para verla en los informes:
+
+1. Ve a **Admin** (icono de engranaje, abajo a la izquierda) → en la columna de la propiedad, **"Definiciones personalizadas"** → **"Dimensiones personalizadas"**
+2. Pulsa **"Crear dimensiones personalizadas"**
+3. Rellena:
+   - **Nombre de la dimensión**: `Etiqueta del evento`
+   - **Ámbito**: Evento
+   - **Parámetro de evento**: `event_label`
+4. Guarda. A partir de aquí (los datos anteriores a crear la dimensión no se pueden recuperar retroactivamente), en **Informes → Interacción → Eventos**, al hacer clic en un evento concreto (por ejemplo `click_whatsapp_bateria`) podrás añadir "Etiqueta del evento" como columna o comparación para ver exactamente qué modelo de batería se consultó cada vez.
+
+### Crear un informe/panel a medida (opcional)
+
+Si quieres un panel visual con estas cifras (por ejemplo, comparar llamadas vs. WhatsApp vs. formularios), en GA4 puedes ir a **"Explorar"** en el menú lateral y crear una "Exploración libre" añadiendo el nombre del evento como dimensión y "Recuento de eventos" como métrica.
 
 ---
 
 ## ✅ Checklist final — no olvides esto antes de dar la web por lanzada
 
-- [ ] Ejecutado `supabase/schema.sql` en Supabase y comprobado que existen las tablas `leads`, `baterias` y `eventos_contacto`
+- [ ] Ejecutado `supabase/schema.sql` en Supabase y comprobado que existen las tablas `leads` y `baterias`
 - [ ] Creado tu usuario Super Admin en Supabase → Authentication → Users (Paso 2bis)
 - [ ] Rellenado `.env.local` con tus datos reales, incluidas `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- [ ] Probado el formulario de grúa en local (`npm run dev`) y confirmado que el envío aparece en Supabase
+- [ ] Configurada tu cuenta de Resend y añadidas `RESEND_API_KEY` y `NOTIFICATION_EMAIL`
+- [ ] Probado el formulario de grúa en local (`npm run dev`) y confirmado que el envío aparece en Supabase **y** llega el email a Gmail
 - [ ] Probado el login en `/panel-control/login` y creado al menos una batería de prueba
-- [ ] Configurado las mismas variables de entorno en Vercel (incluidas las de Supabase Auth)
+- [ ] Configuradas las mismas variables de entorno en Vercel (Supabase Auth + Resend)
 - [ ] Publicado el sitio y probado los botones de llamada/WhatsApp desde el móvil real, tanto en la grúa como en la tienda de baterías
 - [ ] Comprobado que `/panel-control` no aparece en ningún menú visible ni en el sitemap público
 - [ ] Conectado tu dominio propio (opcional pero recomendado para dar imagen profesional)
 - [ ] Verificado el sitio en [Google Search Console](https://search.google.com/search-console) para que aparezca en Google
 - [ ] Revisado las páginas legales (`Política de Privacidad`, `Condiciones de Uso`, `Protección de Datos`) con tu gestoría o asesor legal para confirmar razón social, CIF y domicilio fiscal exactos
-- [ ] Activado Google Analytics y comprobado que se ven visitas en tiempo real (tras aceptar el banner de cookies en tu propia visita)
+- [ ] Activado Google Analytics y comprobado que se ven visitas y eventos en tiempo real (tras aceptar el banner de cookies en tu propia visita)
 
 ---
 
-## 📊 Qué se mide automáticamente (una vez tengas Analytics activado)
+## 📊 Qué se mide automáticamente en Google Analytics
 
-| Acción del visitante | Evento de Google Analytics | ¿También en "Contactos" del panel? |
-|---|---|---|
-| Pulsa "Llamar" (grúa) | `click_phone` | Sí (`llamada`) |
-| Pulsa "WhatsApp" (grúa) | `click_whatsapp` | Sí (`whatsapp`) |
-| Pulsa "Consultar por WhatsApp" (batería) | `click_whatsapp_bateria` | Sí (`whatsapp_bateria`, con el modelo) |
-| Usa "¿Qué batería lleva mi coche?" | `click_whatsapp_bateria` | Sí (`whatsapp_bateria`, con marca/modelo del coche) |
-| Envía el formulario de grúa | `lead_form_submit` | — |
-| El formulario se guarda con éxito | `lead_form_success` | Sí (`formulario`) |
-| Hay un error al enviar | `lead_form_error` | — |
+| Acción del visitante | Evento de Google Analytics |
+|---|---|
+| Pulsa "Llamar" (grúa) | `click_phone` |
+| Pulsa "WhatsApp" (grúa) | `click_whatsapp` |
+| Pulsa "Consultar por WhatsApp" (batería) | `click_whatsapp_bateria` |
+| Usa "¿Qué batería lleva mi coche?" | `click_whatsapp_bateria` |
+| Envía el formulario de grúa | `lead_form_submit` |
+| El formulario se guarda con éxito | `lead_form_success` |
+| Hay un error al enviar | `lead_form_error` |
 
-La columna de "Contactos" es tu propia base de datos (tabla `eventos_contacto`), separada de Google Analytics — te da cifras reales de conversión aunque el visitante no acepte cookies. Consúltala en `/panel-control/contactos`, o directamente en Supabase → Table Editor → `eventos_contacto` / vista `eventos_resumen` (resumen agrupado por día).
+Todo esto vive únicamente en Google Analytics (ver la sección de arriba para consultarlo) — no se guarda en tu base de datos ni aparece en el panel de administración.
 
 ---
 
@@ -358,11 +422,10 @@ gruas-luaidesa/
 │   ├── globals.css                     # Estilos y paleta de colores
 │   ├── sitemap.ts / robots.ts          # SEO técnico (incluye fichas de baterías e ignora /panel-control)
 │   ├── middleware.ts                   # Protege /panel-control (exige sesión de Supabase Auth)
-│   ├── api/leads/route.ts              # Recibe el formulario de grúa y lo guarda en Supabase
-│   ├── api/eventos/route.ts            # Registra cada llamada/WhatsApp/formulario (control de contactos)
+│   ├── api/leads/route.ts              # Recibe el formulario de grúa, lo guarda en Supabase y avisa por email
 │   ├── api/admin/baterias/             # CRUD, borrado en lote e importación por Excel (requiere sesión)
 │   ├── baterias-coche-madrid/          # Tienda pública (listado con filtros + ficha por batería)
-│   ├── panel-control/                  # Panel de administración privado (login, dashboard, CRUD, contactos)
+│   ├── panel-control/                  # Panel de administración privado (login, dashboard, CRUD de baterías)
 │   └── politica-privacidad/, condiciones-uso/, proteccion-datos/  # Páginas legales
 ├── components/
 │   ├── icons.tsx                        # Iconos propios (sin emojis)
@@ -370,13 +433,14 @@ gruas-luaidesa/
 │   ├── BateriaCard.tsx / BateriasStore.tsx / CocheBateriaModal.tsx / BateriaWhatsAppButton.tsx  # Tienda pública
 │   └── admin/BateriasTabla.tsx / BateriaForm.tsx / LogoutButton.tsx                              # Panel admin
 ├── lib/
-│   ├── analytics.ts                     # Eventos de Google Analytics + registro en "Contactos"
-│   ├── supabase.ts                      # Conexión a la base de datos (leads, baterías, eventos) — solo servidor
+│   ├── analytics.ts                     # Eventos de Google Analytics (llamadas, WhatsApp, formulario)
+│   ├── email.ts                         # Envío del email de aviso (Resend) en cada solicitud de grúa
+│   ├── supabase.ts                      # Conexión a la base de datos (leads, baterías) — solo servidor
 │   ├── supabase-browser.ts              # Cliente de Auth para el navegador (login/recuperar password)
 │   ├── supabase-server.ts               # Cliente de Auth para Server Components / API routes
 │   └── admin-auth.ts                    # Comprueba la sesión en las API routes de /api/admin
 ├── supabase/
-│   └── schema.sql                       # Estructura de la base de datos (leads, baterias, eventos_contacto)
+│   └── schema.sql                       # Estructura de la base de datos (leads, baterias)
 └── .env.local.example                   # Plantilla de configuración
 ```
 
@@ -403,3 +467,5 @@ gruas-luaidesa/
 - **El email de recuperar contraseña no llega** → revisa spam; si sigue sin llegar, es el límite de envíos del email de prueba de Supabase — conecta un proveedor de email propio en Authentication → Providers → Email para producción
 - **Al importar el Excel me dice que faltan columnas / todas las filas fallan** → confirma que la primera fila del Excel es la cabecera con los nombres de columna (`modelo`, `imagen`, `marca`, `precio`, `amperaje`, `start_stop`) y que no hay filas vacías por encima
 - **Las imágenes de las baterías no se ven** → el campo "imagen" debe ser una URL pública y directa a la foto (que termine en `.jpg`, `.png`, etc. y se pueda abrir sola en el navegador), no un enlace a una carpeta de Drive ni una foto adjunta
+- **El listado de baterías está vacío o da error** → casi siempre es porque la tabla `baterias` no existe todavía en tu Supabase: ve a SQL Editor y ejecuta la parte de `baterias` de `supabase/schema.sql` (ver Paso 2)
+- **No me llega el email del formulario a Gmail** → revisa que `RESEND_API_KEY` y `NOTIFICATION_EMAIL` estén bien puestas (en local y en Vercel), revisa spam, y comprueba en resend.com → "Logs" si el envío se intentó y qué error dio. Recuerda: aunque el email falle, el lead se guarda igualmente en Supabase

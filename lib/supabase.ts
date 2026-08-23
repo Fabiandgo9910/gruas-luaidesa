@@ -279,85 +279,26 @@ export async function crearBateriasEnLote(
 }
 
 // ============================================================
-// Eventos de contacto (control de llamadas / WhatsApp / formularios)
+// Resumen para el panel de administración
 // ============================================================
 
-export type TipoEvento = "llamada" | "whatsapp" | "whatsapp_bateria" | "formulario";
-
-export interface EventoContactoInsert {
-  tipo: TipoEvento;
-  origen?: string;
-  pagina?: string;
-  detalle?: string;
-}
-
-export async function registrarEventoContacto(evento: EventoContactoInsert) {
-  const supabase = getSupabaseAdmin();
-  const { error } = await supabase.from("eventos_contacto").insert({
-    tipo: evento.tipo,
-    origen: evento.origen || null,
-    pagina: evento.pagina || null,
-    detalle: evento.detalle || null,
-  });
-  if (error) throw error;
-}
-
-export interface EventoContacto {
-  id: string;
-  created_at: string;
-  tipo: TipoEvento;
-  origen: string | null;
-  pagina: string | null;
-  detalle: string | null;
-}
-
-export async function getEventosContacto(limite = 200): Promise<EventoContacto[]> {
-  const supabase = getSupabaseAdmin();
-  const { data, error } = await supabase
-    .from("eventos_contacto")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(limite);
-  if (error) throw error;
-  return data || [];
-}
-
-export interface ResumenContactos {
-  totalLlamadas: number;
-  totalWhatsapp: number;
-  totalWhatsappBaterias: number;
-  totalFormularios: number;
+export interface ResumenPanel {
   totalLeads: number;
   totalBaterias: number;
   totalBateriasPublicadas: number;
 }
 
-export async function getResumenPanel(): Promise<ResumenContactos> {
+export async function getResumenPanel(): Promise<ResumenPanel> {
   const supabase = getSupabaseAdmin();
 
-  const [
-    { count: totalLlamadas },
-    { count: totalWhatsapp },
-    { count: totalWhatsappBaterias },
-    { count: totalFormularios },
-    { count: totalLeads },
-    { count: totalBaterias },
-    { count: totalBateriasPublicadas },
-  ] = await Promise.all([
-    supabase.from("eventos_contacto").select("id", { count: "exact", head: true }).eq("tipo", "llamada"),
-    supabase.from("eventos_contacto").select("id", { count: "exact", head: true }).eq("tipo", "whatsapp"),
-    supabase.from("eventos_contacto").select("id", { count: "exact", head: true }).eq("tipo", "whatsapp_bateria"),
-    supabase.from("eventos_contacto").select("id", { count: "exact", head: true }).eq("tipo", "formulario"),
-    supabase.from("leads").select("id", { count: "exact", head: true }),
-    supabase.from("baterias").select("id", { count: "exact", head: true }),
-    supabase.from("baterias").select("id", { count: "exact", head: true }).eq("publicado", true),
-  ]);
+  const [{ count: totalLeads }, { count: totalBaterias }, { count: totalBateriasPublicadas }] =
+    await Promise.all([
+      supabase.from("leads").select("id", { count: "exact", head: true }),
+      supabase.from("baterias").select("id", { count: "exact", head: true }),
+      supabase.from("baterias").select("id", { count: "exact", head: true }).eq("publicado", true),
+    ]);
 
   return {
-    totalLlamadas: totalLlamadas || 0,
-    totalWhatsapp: totalWhatsapp || 0,
-    totalWhatsappBaterias: totalWhatsappBaterias || 0,
-    totalFormularios: totalFormularios || 0,
     totalLeads: totalLeads || 0,
     totalBaterias: totalBaterias || 0,
     totalBateriasPublicadas: totalBateriasPublicadas || 0,
