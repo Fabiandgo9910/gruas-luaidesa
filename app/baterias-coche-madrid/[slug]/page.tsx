@@ -20,12 +20,15 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
   const nombre = `${bateria.marca ? `${bateria.marca} ` : ""}${bateria.modelo}`;
   const path = `/baterias-coche-madrid/${bateria.slug}`;
-  const descripcion = `Batería de coche ${nombre}${bateria.amperaje ? ` de ${bateria.amperaje} Ah` : ""}${
-    bateria.start_stop ? ", compatible con sistema Start-Stop" : ""
-  }. Instalación a domicilio en Madrid y alrededores. Consulta precio por WhatsApp.`;
+  const descripcion = `Batería ${nombre}${bateria.amperaje ? ` (${bateria.amperaje} Ah)` : ""}${
+    bateria.start_stop ? ", con Start-Stop" : ""
+  }. Instalación a domicilio en Madrid. Precio por WhatsApp.`;
 
   return {
-    title: `Batería ${nombre} — Instalación a domicilio en Madrid`,
+    // title.absolute evita que se le añada el sufijo "| Grúas Luaidesa" del
+    // layout, para mantener el título dentro del límite recomendado (~60
+    // caracteres) sin importar lo largo que sea el nombre de la batería.
+    title: { absolute: `Batería ${nombre} a Domicilio en Madrid | Grúas Luaidesa` },
     description: descripcion,
     keywords: [
       `batería ${nombre}`, `batería ${bateria.marca || ""} Madrid`, "cambio de batería a domicilio Madrid",
@@ -97,7 +100,7 @@ export default async function BateriaDetallePage({ params }: { params: { slug: s
                 </span>
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={bateria.imagen_url} alt={nombre} className="max-w-full max-h-[380px] object-contain" />
+              <img src={bateria.imagen_url} alt={`Batería ${nombre}`} className="max-w-full max-h-[380px] object-contain" />
             </div>
 
             <div>

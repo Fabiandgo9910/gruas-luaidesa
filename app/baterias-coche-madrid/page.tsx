@@ -9,9 +9,9 @@ const PHONE_E164 = "+34674088195";
 const PATH = "/baterias-coche-madrid";
 
 export const metadata: Metadata = {
-  title: "Venta e instalación de baterías de coche a domicilio en Madrid",
+  title: "Baterías de Coche a Domicilio en Madrid",
   description:
-    "Compra tu batería de coche online y te la instalamos a domicilio en Madrid y alrededores. Todas las marcas, con y sin sistema Start-Stop. Consulta precio por WhatsApp.",
+    "Compra tu batería de coche y te la instalamos a domicilio en Madrid. Todas las marcas, con y sin Start-Stop. Consulta precio por WhatsApp.",
   keywords: [
     "baterías de coche Madrid", "cambio de batería a domicilio Madrid", "batería coche Start-Stop Madrid",
     "instalación batería coche Madrid", "comprar batería de coche Madrid", "batería arranque parada Madrid",

@@ -33,11 +33,11 @@ const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "gruasluaidesa@gmail.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Grúas Luaidesa | Grúa 24h y Baterías de Coche a Domicilio en Madrid",
+    default: "Grúas Luaidesa | Grúa 24h y Baterías a Domicilio",
     template: "%s | Grúas Luaidesa",
   },
   description:
-    "Servicio de grúa y rescate vehicular 24h en Madrid y toda España, y venta e instalación de baterías de coche a domicilio en Madrid y alrededores. Respuesta rápida, precio cerrado y factura legal.",
+    "Grúa y rescate vehicular 24h en Madrid y toda España. Venta e instalación de baterías de coche a domicilio en Madrid. Respuesta rápida y factura legal.",
   keywords: [
     "grúas Madrid", "servicio de grúa Madrid", "grúa 24 horas Madrid",
     "rescate vehicular Madrid", "grúas España", "auxilio en carretera Madrid",
@@ -67,6 +67,9 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
   alternates: { canonical: SITE_URL },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
   other: {
     "geo.region": "ES-MD",
     "geo.placename": "Madrid",

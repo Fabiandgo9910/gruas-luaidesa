@@ -401,7 +401,44 @@ El código ayuda a que Google *entienda* tu web, pero para aparecer arriba en lo
 
 Cada vez que cambies algo relacionado con SEO, puedes comprobar que Google lo interpreta bien aquí: [Rich Results Test de Google](https://search.google.com/test/rich-results) — pega la URL de tu web (o de una ficha de batería) y te dirá si detecta correctamente la empresa, el producto, las preguntas frecuentes, etc.
 
+---
 
+## 🚦 Paso a paso para generar tráfico — la mejor opción antes de pagar por posicionamiento
+
+Vas a pagar el dominio y quieres invertir en posicionamiento: este es el orden que más rendimiento te va a dar por cada euro, de lo gratis-e-imprescindible a lo que sí conviene pagar.
+
+### Fase 1 — Gratis y obligatorio antes de gastar nada en anuncios (semana 1)
+
+1. **Conecta el dominio** en Vercel (Paso 6 del README) y espera 24-48h a que se propague
+2. **Google Search Console** → [search.google.com/search-console](https://search.google.com/search-console) → añade tu dominio → verifica con la etiqueta HTML (pega el código en `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` de tus variables de entorno y redeploy) → una vez verificado, ve a "Sitemaps" y envía `sitemap.xml`
+3. **Bing Webmaster Tools** → [bing.com/webmasters](https://www.bing.com/webmasters) → puedes importar directamente la propiedad de Google Search Console en un clic, así que este paso es rápido
+4. **Perfil de Empresa en Google** (el más importante para búsquedas locales tipo "grúa cerca de mí") → sección de arriba de este mismo README, tiene el paso a paso completo. Sube al menos 5-10 fotos reales
+5. **Pide 5-10 reseñas** a clientes reales ya atendidos, con el enlace directo que te da el Perfil de Empresa — esto pesa más que casi cualquier otra cosa para el posicionamiento local
+
+> Con solo esto, en 1-3 semanas Google ya debería empezar a indexar y mostrar tu web en búsquedas de marca ("Grúas Luaidesa") y algunas búsquedas locales sin competencia.
+
+### Fase 2 — Gratis, pero requiere trabajo continuo (mes 1-3)
+
+Google tarda en confiar en un dominio nuevo — esto no tiene atajos, pero acelera con:
+
+6. **Contenido**: cada cierto tiempo, añade una entrada de blog o página nueva con temas reales que la gente busca — "cuánto cuesta una grúa en Madrid", "cómo saber si mi batería está agotada", "qué hacer si mi coche se queda tirado en la M-30". No hace falta que sea diario; con 1-2 al mes ya suma
+7. **Enlaces desde otros sitios** (esto es lo que más cuesta y más vale): date de alta en directorios locales gratuitos (Páginas Amarillas, QDQ, directorios de tu ayuntamiento/zona, asociaciones de talleres/gruistas si las hay) — cada enlace real desde un sitio de tu sector suma
+8. **Redes sociales activas** (Instagram/Facebook) con contenido real (servicios hechos, antes/después, zona cubierta) — no posicionan directamente en Google, pero generan tráfico propio y confianza, y Google lo valora indirectamente
+
+### Fase 3 — Cuándo y en qué pagar (a partir de que tengas Fase 1 hecha)
+
+**No pagues por posicionamiento SEO genérico** de agencias que prometen "primera página en 30 días" — con un negocio local nuevo, lo que de verdad funciona y da resultado inmediato es:
+
+1. **Google Ads — Campaña de Búsqueda por palabra clave, con extensión de llamada** — es la opción con mejor retorno para un servicio urgente como una grúa: la gente busca "grúa Madrid urgente" con intención de llamar YA. Configura la campaña para que el objetivo sea la llamada telefónica directamente desde el anuncio (extensión de llamada), no solo clics a la web. Empieza con un presupuesto pequeño (10-20€/día) y ajusta según qué palabras clave convierten
+2. **Google Ads — Perfil de Empresa (Local Services / anuncios de Perfil de Empresa)** si tu categoría lo permite en tu país — aparecen justo encima de los resultados normales, muy efectivos para "cerca de mí"
+3. Cuando tengas presupuesto para más, añade una **segunda campaña de Google Ads específica para "batería coche Madrid"** — es una búsqueda con intención de compra más racional (no urgente como la grúa), así que puedes usar el botón de WhatsApp de la tienda como conversión objetivo, no solo la llamada
+4. **Mide siempre desde Google Analytics** los eventos `click_phone`, `click_whatsapp` y `lead_form_success` (ver la sección de arriba "Cómo ver los eventos en Google Analytics") para saber qué campaña te está trayendo clientes de verdad, no solo clics — así no tiras dinero a palabras clave que traen visitas pero no llamadas
+
+**Evita** por ahora: SEO "premium" de agencias sin resultados garantizables, comprar enlaces masivos (Google penaliza esto), y campañas de Display/Video — para un servicio local urgente, Búsqueda (search) siempre rinde mejor que el resto de formatos de Google Ads.
+
+---
+
+## ✅ Checklist final — no olvides esto antes de dar la web por lanzada
 
 - [ ] Ejecutado `supabase/schema.sql` en Supabase y comprobado que existen las tablas `leads` y `baterias`
 - [ ] Creado tu usuario Super Admin en Supabase → Authentication → Users (Paso 2bis)
