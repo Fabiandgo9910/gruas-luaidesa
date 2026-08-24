@@ -214,17 +214,11 @@ Vercel es la plataforma que crea la misma empresa que hace Next.js — es la opc
 
 Esta parte es nueva: además de la grúa, la web ahora vende e instala baterías de coche a domicilio. Tiene su propia tienda pública y un panel de administración privado para gestionar el catálogo.
 
-### Paso 2ter — Crear el "cubo" (bucket) donde se guardan las fotos
+### Paso 2ter — Las fotos de las baterías (ya no requiere nada manual)
 
-Las fotos de las baterías se suben directamente desde tu ordenador/móvil (ya no hace falta pegar un enlace). Para que esto funcione, necesitas crear un espacio de almacenamiento en Supabase, una sola vez:
+Las fotos se suben directamente desde tu ordenador/móvil al crear o editar una batería. El propio sitio crea automáticamente, la primera vez que subas una foto, el espacio de almacenamiento que necesita en Supabase (bucket `baterias-imagenes`, público) — no tienes que hacer nada en el dashboard de Supabase para esto.
 
-1. En tu proyecto de Supabase, ve al menú lateral → **"Storage"**
-2. Haz clic en **"New bucket"**
-3. Nombre exacto: `baterias-imagenes` (tal cual, en minúsculas y con guion)
-4. Activa la opción **"Public bucket"** (para que las fotos se puedan ver en la web sin iniciar sesión)
-5. Haz clic en **"Create bucket"**
-
-Con esto ya está listo — no hace falta tocar nada más aquí.
+> Si por lo que sea tu plan de Supabase no permite crear buckets automáticamente y ves el error "Bucket not found", créalo tú una vez a mano: Supabase → **Storage** → **"New bucket"** → nombre exacto `baterias-imagenes` → activa **"Public bucket"** → **"Create bucket"**. Es la única situación en la que hace falta este paso manual.
 
 ### Cómo entrar al panel
 
@@ -410,7 +404,6 @@ Cada vez que cambies algo relacionado con SEO, puedes comprobar que Google lo in
 
 
 - [ ] Ejecutado `supabase/schema.sql` en Supabase y comprobado que existen las tablas `leads` y `baterias`
-- [ ] Creado el bucket **"baterias-imagenes"** en Supabase Storage, marcado como público (Paso 2ter)
 - [ ] Creado tu usuario Super Admin en Supabase → Authentication → Users (Paso 2bis)
 - [ ] Rellenado `.env.local` con tus datos reales, incluidas `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] Configurada tu cuenta de Resend y añadidas `RESEND_API_KEY` y `NOTIFICATION_EMAIL`

@@ -70,8 +70,16 @@ export default function BateriasStore({ baterias }: { baterias: Bateria[] }) {
         </label>
       </div>
 
-      <div className="mb-8">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-8">
         <CocheBateriaModal />
+        <a
+          href="https://www.exidegroup.com/es/es/brand/tudor"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 border-2 border-ink-900/15 hover:border-ink-900/40 text-ink-900 font-condensed font-black uppercase tracking-wide rounded-full px-6 py-3.5 transition-all text-sm sm:text-base"
+        >
+          Saber qué batería lleva mi coche por la matrícula
+        </a>
       </div>
 
       {filtradas.length === 0 ? (
