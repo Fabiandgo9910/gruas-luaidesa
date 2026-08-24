@@ -76,7 +76,7 @@ export default function BateriasStore({ baterias }: { baterias: Bateria[] }) {
           href="https://www.exidegroup.com/es/es/brand/tudor"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 border-2 border-ink-900/15 hover:border-ink-900/40 text-ink-900 font-condensed font-black uppercase tracking-wide rounded-full px-6 py-3.5 transition-all text-sm sm:text-base"
+          className="inline-flex items-center justify-center gap-2 border-2 border-gold/30 hover:border-gold text-sand-100 font-condensed font-black uppercase tracking-wide rounded-full px-6 py-3.5 transition-all text-sm sm:text-base"
         >
           Saber qué batería lleva mi coche por la matrícula
         </a>
