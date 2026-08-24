@@ -142,7 +142,7 @@ Si no quieres configurar esto ahora, puedes dejarlo vac√≠o y el sitio funcionar√
    NEXT_PUBLIC_PHONE_NUMBER=+34 674 08 81 95
    NEXT_PUBLIC_EMAIL=gruasluaidesa@gmail.com
 
-   NEXT_PUBLIC_SITE_URL=https://www.gruasluaidesa.com
+   NEXT_PUBLIC_SITE_URL=https://www.luaidesa.com
    ```
 
    - Sustituye `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` por los valores que copiaste en el Paso 2

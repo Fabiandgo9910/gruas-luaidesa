@@ -8,7 +8,7 @@ import { IconBolt, IconArrowRight } from "@/components/icons";
 import BateriaWhatsAppButton from "@/components/BateriaWhatsAppButton";
 import { getBateriaPorSlug, getBateriasPublicadas } from "@/lib/supabase";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
 
 export const dynamic = "force-dynamic";
 

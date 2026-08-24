@@ -26,7 +26,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
 const PHONE_E164 = "+34674088195";
 const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "gruasluaidesa@gmail.com";
 
