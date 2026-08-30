@@ -3,21 +3,25 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { trackPhone, trackWhatsApp } from "@/lib/analytics";
 import { IconPhone, IconWhatsApp, IconMenu, IconClose } from "@/components/icons";
+import ThemeToggle from "@/components/ThemeToggle";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useIdioma } from "@/components/LanguageProvider";
 
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "34674088195";
 const PHONE = process.env.NEXT_PUBLIC_PHONE_NUMBER || "+34 674 08 81 95";
 const WA_MSG = encodeURIComponent("Hola, necesito una grúa urgente.");
 
 const NAV_LINKS = [
-  { href: "/#servicios", label: "Grúa" },
-  { href: "/baterias-coche-madrid", label: "Baterías" },
-  { href: "/#cobertura", label: "Cobertura" },
-  { href: "/#proceso", label: "Cómo trabajamos" },
-  { href: "/#contacto", label: "Contacto" },
+  { href: "/#servicios", key: "grua" as const },
+  { href: "/baterias-coche-madrid", key: "baterias" as const },
+  { href: "/#cobertura", key: "cobertura" as const },
+  { href: "/#proceso", key: "proceso" as const },
+  { href: "/#contacto", key: "contacto" as const },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { t } = useIdioma();
 
   useEffect(() => {
     if (open) {
@@ -41,7 +45,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 inset-x-0 z-40 bg-ink-900/95 backdrop-blur-md border-b border-gold/15 h-16 flex items-center">
+      <header className="glass fixed top-0 inset-x-0 z-40 h-16 flex items-center">
         <div className="max-w-container mx-auto px-5 flex items-center justify-between w-full">
         <Link href="/" className="flex items-baseline gap-2 leading-none group">
           <span className="font-condensed text-xl font-black text-sand-100 tracking-wide uppercase">
@@ -59,12 +63,14 @@ export default function Navbar() {
               href={item.href}
               className="text-sand-100/60 hover:text-gold transition-colors text-[13px] font-medium uppercase tracking-widest"
             >
-              {item.label}
+              {t.nav[item.key]}
             </Link>
           ))}
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
+          <ThemeToggle />
+          <LanguageSwitcher />
           <a
             href={`tel:${PHONE.replace(/\s/g, "")}`}
             onClick={() => trackPhone("navbar")}
@@ -93,13 +99,15 @@ export default function Navbar() {
         >
           {open ? <IconClose className="w-6 h-6" /> : <IconMenu className="w-6 h-6" />}
         </button>
+        <ThemeToggle className="lg:hidden ml-2" />
+        <LanguageSwitcher className="lg:hidden ml-2" />
       </div>
       </header>
 
       {open && (
         <div
           id="mobile-menu"
-          className="lg:hidden fixed inset-x-0 top-16 bottom-0 z-[100] bg-ink-900 border-t border-gold/15 px-5 py-8 space-y-1 overflow-y-auto overscroll-contain"
+          className="theme-invariant lg:hidden fixed inset-x-0 top-16 bottom-0 z-[100] bg-ink-900 border-t border-gold/15 px-5 py-8 space-y-1 overflow-y-auto overscroll-contain"
         >
           {NAV_LINKS.map((item) => (
             <Link
@@ -108,7 +116,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="block text-sand-100 hover:text-gold py-3.5 text-xl font-condensed font-bold uppercase tracking-wide border-b border-gold/10"
             >
-              {item.label}
+              {t.nav[item.key]}
             </Link>
           ))}
           <div className="pt-6 space-y-3">

@@ -92,4 +92,252 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* ===== Glassmorphism — sistema con 3 niveles de profundidad ===== */
+  /* Nivel 1: tarjetas inline (servicios, FAQ, pasos) — cristal sutil */
+  /* Nivel 2: paneles destacados (navbar, filtros, footer) — cristal medio */
+  /* Nivel 3: modales y CTA — cristal marcado con halo dorado */
+
+  .glass-1 {
+    background: rgba(250, 246, 236, 0.09);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(201, 162, 39, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 24px rgba(0,0,0,0.22);
+  }
+  /* Cristal oscuro con menos blur para usar en tarjetas SOBRE FONDO CLARO */
+  .glass-1-dark {
+    background: rgba(26, 18, 8, 0.04);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(26, 18, 8, 0.08);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 4px 20px rgba(26,18,8,0.06);
+  }
+
+  .glass {
+    background: rgba(250, 246, 236, 0.11);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(201, 162, 39, 0.25);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 32px rgba(0, 0, 0, 0.28);
+    position: relative;
+  }
+  /* Filo superior luminoso — la firma visual del cristal en todo el sitio */
+  .glass::before, .glass-1::before, .glass-3::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 12%; right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,162,39,0.55), transparent);
+    pointer-events: none;
+  }
+  .glass-hover {
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .glass-hover:hover {
+    background: rgba(250, 246, 236, 0.12);
+    border-color: rgba(201, 162, 39, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 12px 36px rgba(0,0,0,0.3);
+  }
+  /* Cristal oscuro: para usar sobre fondos claros (sand-100/sand-200) */
+  .glass-dark {
+    background: rgba(26, 18, 8, 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+  /* Panel de cristal claro sobre fondo claro (modales, tarjetas sobre sand) */
+  .glass-light {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px rgba(26, 18, 8, 0.08);
+  }
+  /* Nivel 3: cristal "premium" con halo dorado, para CTA y modales grandes */
+  .glass-3 {
+    background: rgba(250, 246, 236, 0.06);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(201, 162, 39, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(201,162,39,0.05), 0 20px 60px rgba(0,0,0,0.35), 0 0 80px rgba(201,162,39,0.06);
+    position: relative;
+  }
+
+  /* ===== Manchas de color desenfocadas ("orbs") ===== */
+  /* El truco real para que el cristal se note: necesita algo con
+     color detrás que desenfocar. Sobre un fondo plano, el blur casi
+     no se percibe. Estas manchas van SIEMPRE detrás del contenido
+     (z-index negativo) dentro de una sección con position:relative +
+     overflow:hidden. */
+  .orb-field {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: 0.35;
+  }
+  .orb-gold { background: radial-gradient(circle, #F0C93A, transparent 70%); }
+  .orb-amber { background: radial-gradient(circle, #C9A227, transparent 70%); }
+  .orb-rose { background: radial-gradient(circle, #B85C38, transparent 70%); }
+  .orb-teal { background: radial-gradient(circle, #2E7D6B, transparent 70%); }
+
+  /* ===== Microinteracciones reutilizables para botones ===== */
+  .btn-tap {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .btn-tap:hover { transform: translateY(-2px); }
+  .btn-tap:active { transform: translateY(0) scale(0.97); }
+}
+
+/* Evita cualquier desbordamiento horizontal accidental (elementos con
+   ancho fijo, badges o tablas que se salgan en móvil) */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Barra de progreso superior en cada navegación entre páginas */
+.top-progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 9999;
+  background: linear-gradient(90deg, var(--gold-dark, #a3811f), var(--gold, #C9A227), var(--gold-light, #e0bc4f));
+  transform-origin: left;
+  animation: topProgress 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@keyframes topProgress {
+  0%   { transform: scaleX(0); opacity: 1; }
+  70%  { transform: scaleX(0.85); }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* Shimmer para los esqueletos de carga (loading.tsx) */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(201,162,39,0.15), transparent);
+  animation: shimmer 1.6s infinite;
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* ============================================================
+   SISTEMA DE TEMA (oscuro/claro) — con clases SEMÁNTICAS
+   ============================================================
+   El bug del intento anterior: sobrescribir clases de Tailwind
+   como .text-sand-100 por su NOMBRE no funciona bien, porque esa
+   misma clase se usa en el código con distintos significados según
+   el sitio (a veces "texto claro sobre fondo oscuro", a veces sin
+   relación con el tema). Aquí se define un puñado de clases NUEVAS
+   con un significado único y fijo — "superficie oscura de marca" y
+   "texto/borde sobre esa superficie" — que SÍ cambian con el tema,
+   totalmente separadas de la paleta sand/ink que se usa para el
+   resto del diseño (que no varía con el tema, a propósito, porque
+   es la alternancia clara/oscura que ya forma parte del diseño).
+   ============================================================ */
+:root {
+  --surface-1: 26, 18, 8;      /* = ink-900 */
+  --surface-2: 38, 25, 12;     /* = ink-800 */
+  --surface-3: 44, 31, 10;     /* = ink-700 */
+  --on-surface: 250, 246, 236; /* = sand-100, texto sobre superficie oscura */
+  --on-surface-heading: 240, 201, 58; /* = gold-light, títulos sobre superficie oscura */
+  --glass-tint: 250, 246, 236; /* tinte del cristal: claro sobre superficie oscura */
+  --glass-tint-dark: 26, 18, 8; /* tinte del cristal cuando la superficie es clara */
+}
+
+html.light {
+  --surface-1: 250, 246, 236;  /* pasa a ser clara */
+  --surface-2: 241, 231, 206;
+  --surface-3: 228, 210, 166;
+  --on-surface: 26, 18, 8;     /* el texto pasa a oscuro para seguir leyéndose */
+  --on-surface-heading: 138, 110, 24; /* gold-dark: el dorado claro no se lee sobre fondo claro */
+  --glass-tint: 26, 18, 8;     /* el cristal invierte su tinte también */
+  --glass-tint-dark: 255, 255, 255;
+}
+
+@layer utilities {
+  /* Fondos de "superficie oscura de marca" — reemplazan a bg-ink-900/800/700
+     SOLO cuando ese elemento es el fondo de una sección/tarjeta completa
+     (no cuando ink-900 se usa como color de un botón puntual, que se
+     queda igual en ambos temas a propósito — ver .theme-invariant). */
+  .surface-1 { background-color: rgb(var(--surface-1)); }
+  .surface-2 { background-color: rgb(var(--surface-2)); }
+  .surface-3 { background-color: rgb(var(--surface-3)); }
+  .surface-1\/50 { background-color: rgba(var(--surface-1), 0.5); }
+  .surface-1\/60 { background-color: rgba(var(--surface-1), 0.6); }
+  .surface-1\/80 { background-color: rgba(var(--surface-1), 0.8); }
+  .surface-1\/90 { background-color: rgba(var(--surface-1), 0.9); }
+  .surface-1\/95 { background-color: rgba(var(--surface-1), 0.95); }
+  .surface-2\/95 { background-color: rgba(var(--surface-2), 0.95); }
+
+  /* Texto/bordes sobre una superficie oscura (invierte junto con ella) */
+  .on-surface       { color: rgb(var(--on-surface)); }
+  .on-surface\/30    { color: rgba(var(--on-surface), 0.30); }
+  .on-surface\/35    { color: rgba(var(--on-surface), 0.35); }
+  .on-surface\/40    { color: rgba(var(--on-surface), 0.40); }
+  .on-surface\/50    { color: rgba(var(--on-surface), 0.50); }
+  .on-surface\/55    { color: rgba(var(--on-surface), 0.55); }
+  .on-surface\/60    { color: rgba(var(--on-surface), 0.60); }
+  .on-surface\/70    { color: rgba(var(--on-surface), 0.70); }
+  .on-surface\/90    { color: rgba(var(--on-surface), 0.90); }
+  .on-surface-heading      { color: rgb(var(--on-surface-heading)); }
+  .on-surface-heading\/70   { color: rgba(var(--on-surface-heading), 0.70); }
+  .on-surface-border\/5  { border-color: rgba(var(--on-surface), 0.05); }
+  .on-surface-border\/10 { border-color: rgba(var(--on-surface), 0.10); }
+  .on-surface-border\/15 { border-color: rgba(var(--on-surface), 0.15); }
+  .on-surface-border\/20 { border-color: rgba(var(--on-surface), 0.20); }
+
+  /* Chip circular para iconos — con cristal, reutilizable en toda la web */
+  .icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .icon-chip:hover { transform: scale(1.08); }
+}
+
+/* El cristal, al vivir sobre una .surface-*, también debe invertir su
+   tinte para seguir pareciendo "cristal" (claro sobre oscuro, oscuro
+   sobre claro) en vez de quedar invisible o sucio al cambiar de tema. */
+html.light .glass,
+html.light .glass-1,
+html.light .glass-3 {
+  background: rgba(26, 18, 8, 0.045);
+  border-color: rgba(26, 18, 8, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 8px 32px rgba(26,18,8,0.08);
+}
+html.light .glass::before, html.light .glass-1::before, html.light .glass-3::before {
+  background: linear-gradient(90deg, transparent, rgba(138,110,24,0.4), transparent);
+}
+html.light .glass-hover:hover {
+  background: rgba(26, 18, 8, 0.075);
+  border-color: rgba(138,110,24,0.3);
+}
+
+/* Elementos que deben mantenerse SIEMPRE con estética oscura de marca,
+   sin importar el tema activo (botón flotante de WhatsApp, "volver
+   arriba", panel del menú móvil) — evita el bug de legibilidad que ya
+   tuvimos antes al mezclar temas ahí. */
+.theme-invariant {
+  background-color: #1A1208 !important;
+  color: #FAF6EC !important;
 }

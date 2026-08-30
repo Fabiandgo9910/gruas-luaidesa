@@ -12,7 +12,7 @@ export default function BateriaCard({ bateria }: { bateria: Bateria }) {
   );
 
   return (
-    <article className="bg-ink-800 border border-sand-100/10 hover:border-gold/40 rounded-2xl overflow-hidden transition-all hover:-translate-y-1 group flex flex-col">
+    <article className="glass glass-hover rounded-2xl overflow-hidden transition-all hover:-translate-y-1 group flex flex-col">
       <Link href={`/baterias-coche-madrid/${bateria.slug}`} className="block aspect-square bg-sand-100 relative overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -48,7 +48,7 @@ export default function BateriaCard({ bateria }: { bateria: Bateria }) {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => trackWhatsAppBateria(`${bateria.marca || ""} ${bateria.modelo}`.trim())}
-          className="mt-auto flex items-center justify-center gap-2 py-3 bg-whatsapp hover:bg-whatsapp/90 text-white text-sm font-semibold rounded-xl transition-colors"
+          className="mt-auto flex items-center justify-center gap-2 py-3 bg-whatsapp hover:bg-whatsapp/90 text-white text-sm font-semibold rounded-xl btn-tap"
         >
           <IconWhatsApp className="w-4 h-4" /> Consultar por WhatsApp
         </a>

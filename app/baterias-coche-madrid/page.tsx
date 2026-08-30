@@ -4,7 +4,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import BateriasStore from "@/components/BateriasStore";
 import { getBateriasPublicadas } from "@/lib/supabase";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
 const PHONE_E164 = "+34674088195";
 const PATH = "/baterias-coche-madrid";
 
@@ -82,8 +82,12 @@ export default async function TiendaBateriasPage() {
         </div>
       </section>
 
-      <section className="py-14 sm:py-16 bg-ink-900 min-h-[50vh]">
-        <div className="max-w-container mx-auto px-5">
+      <section className="py-14 sm:py-16 surface-1 min-h-[50vh] relative overflow-hidden">
+        <div className="orb-field">
+          <div className="orb orb-gold w-96 h-96 -top-20 right-0" />
+          <div className="orb orb-teal w-80 h-80 bottom-0 -left-10" />
+        </div>
+        <div className="max-w-container mx-auto px-5 relative z-10">
           {error ? (
             <div className="bg-red-900/20 border border-red-500/30 rounded-2xl p-6 text-red-300 text-sm">
               No se ha podido cargar el catálogo en este momento. Vuelve a intentarlo en unos minutos.

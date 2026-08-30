@@ -63,7 +63,7 @@ export default function CocheBateriaModal() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-sand-100 rounded-2xl p-6 sm:p-8 w-full max-w-md relative shadow-panel my-auto"
+            className="glass-light rounded-2xl p-6 sm:p-8 w-full max-w-md relative shadow-panel my-auto"
           >
             <button
               onClick={() => setAbierto(false)}

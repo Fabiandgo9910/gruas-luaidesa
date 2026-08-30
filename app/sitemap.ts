@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { getBateriasPublicadas } from "@/lib/supabase";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
 
   const estaticas: MetadataRoute.Sitemap = [
     { url: base, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },

@@ -39,16 +39,16 @@ export default function BateriasStore({ baterias }: { baterias: Bateria[] }) {
   }, [baterias, busqueda, marca, amperaje, soloStartStop]);
 
   const selectClass =
-    "bg-ink-800 border border-gold/20 rounded-xl px-4 py-2.5 text-sand-100 text-sm focus:outline-none focus:border-gold";
+    "surface-1/50 border border-gold/15 rounded-xl px-4 py-2.5 on-surface text-sm focus:outline-none focus:border-gold";
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-4">
+      <div className="glass-1 flex flex-col sm:flex-row flex-wrap gap-3 mb-4 rounded-2xl p-4">
         <input
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar por modelo o marca..."
-          className="flex-1 min-w-[200px] bg-ink-800 border border-gold/20 rounded-xl px-4 py-2.5 text-sand-100 placeholder-sand-100/30 text-sm focus:outline-none focus:border-gold"
+          className="flex-1 min-w-[200px] surface-1/50 border border-gold/15 rounded-xl px-4 py-2.5 on-surface placeholder-[rgba(var(--on-surface),0.30)] text-sm focus:outline-none focus:border-gold"
         />
         <select value={marca} onChange={(e) => setMarca(e.target.value)} className={selectClass}>
           <option value="todas">Todas las marcas</option>
@@ -61,7 +61,7 @@ export default function BateriasStore({ baterias }: { baterias: Bateria[] }) {
             <option key={r.value} value={r.value}>{r.label}</option>
           ))}
         </select>
-        <label className="flex items-center gap-2 text-sand-100 text-sm bg-ink-800 border border-gold/20 rounded-xl px-4 py-2.5 cursor-pointer">
+        <label className="flex items-center gap-2 on-surface text-sm surface-1/50 border border-gold/15 rounded-xl px-4 py-2.5 cursor-pointer">
           <input
             type="checkbox" checked={soloStartStop} onChange={(e) => setSoloStartStop(e.target.checked)}
             className="w-4 h-4 accent-[#C9A227]"
@@ -76,15 +76,15 @@ export default function BateriasStore({ baterias }: { baterias: Bateria[] }) {
           href="https://www.exidegroup.com/es/es/brand/tudor"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 border-2 border-gold/30 hover:border-gold text-sand-100 font-condensed font-black uppercase tracking-wide rounded-full px-6 py-3.5 transition-all text-sm sm:text-base"
+          className="inline-flex items-center justify-center gap-2 border-2 border-gold/30 hover:border-gold on-surface font-condensed font-black uppercase tracking-wide rounded-full px-6 py-3.5 transition-all text-sm sm:text-base"
         >
           Saber qué batería lleva mi coche por la matrícula
         </a>
       </div>
 
       {filtradas.length === 0 ? (
-        <div className="bg-ink-800 border border-gold/15 rounded-2xl p-10 text-center">
-          <p className="text-sand-100/50">No hay baterías que coincidan con estos filtros.</p>
+        <div className="glass-1 rounded-2xl p-10 text-center">
+          <p className="on-surface/50">No hay baterías que coincidan con estos filtros.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">

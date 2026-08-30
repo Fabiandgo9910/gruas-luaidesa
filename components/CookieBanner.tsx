@@ -28,9 +28,9 @@ export default function CookieBanner() {
       aria-label="Preferencias de cookies"
       className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-5"
     >
-      <div className="max-w-3xl mx-auto bg-ink-800/95 backdrop-blur border border-gold/25 rounded-2xl shadow-panel p-5 sm:p-6">
+      <div className="max-w-3xl mx-auto glass-3 border border-gold/25 rounded-2xl shadow-panel p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <p className="flex-1 text-[13px] text-sand-100/70 leading-relaxed">
+          <p className="flex-1 text-[13px] on-surface/70 leading-relaxed">
             Usamos cookies propias y analíticas para entender cómo se usa el sitio y mejorarlo.
             Solo se activan si lo aceptas. Más información en{" "}
             <Link href="/politica-privacidad" className="text-gold underline underline-offset-2 hover:text-gold-light">
@@ -44,7 +44,7 @@ export default function CookieBanner() {
           <div className="flex gap-2.5 shrink-0">
             <button
               onClick={() => respond(false)}
-              className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide border border-gold/25 text-sand-100/60 rounded-lg hover:border-gold/50 hover:text-sand-100 transition-colors"
+              className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide border border-gold/25 on-surface/60 rounded-lg hover:border-gold/50 hover:on-surface transition-colors"
             >
               Rechazar
             </button>

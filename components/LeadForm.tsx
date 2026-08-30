@@ -32,6 +32,9 @@ export default function LeadForm() {
   const [form, setForm] = useState<FormData>(INITIAL);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  // Se registra cuándo se montó el formulario en pantalla para poder
+  // descartar en el servidor los envíos "instantáneos" típicos de bots.
+  const [montadoEn] = useState(() => Date.now());
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -57,6 +60,7 @@ export default function LeadForm() {
           ...form,
           source: window.location.href,
           referrer: document.referrer || "directo",
+          formularioMostradoEn: montadoEn,
         }),
       });
 
@@ -82,7 +86,7 @@ export default function LeadForm() {
 
   if (status === "success") {
     return (
-      <div className="bg-ink-800/60 border border-gold/25 rounded-2xl p-8 text-center">
+      <div className="glass-3 rounded-2xl p-8 text-center">
         <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center">
           <IconCheck className="w-7 h-7 text-gold" />
         </div>

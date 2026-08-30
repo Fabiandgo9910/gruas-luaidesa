@@ -4,6 +4,11 @@ import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import CookieBanner from "@/components/CookieBanner";
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import BackToTop from "@/components/BackToTop";
+import TopProgressBar from "@/components/TopProgressBar";
+import ThemeProvider from "@/components/ThemeProvider";
+import LanguageProvider from "@/components/LanguageProvider";
+import { Suspense } from "react";
 
 const barlow = Barlow({
   subsets: ["latin"],
@@ -26,7 +31,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
 const PHONE_E164 = "+34674088195";
 const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "gruasluaidesa@gmail.com";
 
@@ -143,17 +148,33 @@ const bateriasServiceSchema = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable}`}>
+    <html lang="es" className={`dark ${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable}`}>
       <head>
+        {/* Anti-parpadeo: aplica el tema guardado ANTES de que React
+            hidrate, para que la página no "salte" de oscuro a claro
+            (o viceversa) una fracción de segundo después de cargar. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('tema');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');}}catch(e){}`,
+          }}
+        />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bateriasServiceSchema) }} />
       </head>
       <body className="bg-brand-black font-sans antialiased">
+        <ThemeProvider>
+        <LanguageProvider>
         <GoogleAnalytics />
         {children}
+        <Suspense fallback={null}>
+          <TopProgressBar />
+        </Suspense>
+        <BackToTop />
         <FloatingWhatsApp />
         <CookieBanner />
+        </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

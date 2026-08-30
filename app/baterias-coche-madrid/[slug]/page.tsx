@@ -8,7 +8,7 @@ import { IconBolt, IconArrowRight } from "@/components/icons";
 import BateriaWhatsAppButton from "@/components/BateriaWhatsAppButton";
 import { getBateriaPorSlug, getBateriasPublicadas } from "@/lib/supabase";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
 
 export const dynamic = "force-dynamic";
 
@@ -93,7 +93,7 @@ export default async function BateriaDetallePage({ params }: { params: { slug: s
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mt-6">
-            <div className="bg-sand-200 rounded-2xl p-10 flex items-center justify-center relative">
+            <div className="glass-1-dark rounded-2xl p-10 flex items-center justify-center relative">
               {bateria.start_stop && (
                 <span className="absolute top-5 left-5 flex items-center gap-1 bg-gold text-ink-900 text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded-full">
                   <IconBolt className="w-3.5 h-3.5" /> Start-Stop

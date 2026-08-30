@@ -1,3 +1,4 @@
+"use client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LeadForm from "@/components/LeadForm";
@@ -7,6 +8,7 @@ import {
   IconPhone, IconWhatsApp, IconTruck, IconRoute, IconAlert, IconShield,
   IconBolt, IconTag, IconPin, IconClock, IconInvoice, IconChevronDown,
 } from "@/components/icons";
+import { useIdioma } from "@/components/LanguageProvider";
 
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "34674088195";
 const PHONE = process.env.NEXT_PUBLIC_PHONE_NUMBER || "+34 674 08 81 95";
@@ -42,6 +44,7 @@ const FAQ = [
 ];
 
 export default function Home() {
+  const { t } = useIdioma();
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -66,19 +69,19 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-center">
             {/* Columna texto */}
             <div>
-              <div className="inline-flex items-center gap-2 mb-7">
+              <div className="inline-flex items-center gap-2 mb-7 opacity-0 animate-fade-up">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-gold animate-ping-slow" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-gold-dark" />
                 </span>
-                <span className="text-[11px] font-semibold text-gold-dark uppercase tracking-[0.2em]">Operativos ahora · 24h</span>
+                <span className="text-[11px] font-semibold text-gold-dark uppercase tracking-[0.2em]">{t.hero.badge}</span>
               </div>
 
-              <h1 className="font-condensed font-black text-5xl sm:text-6xl md:text-7xl leading-[0.98] uppercase text-ink-900 mb-6">
-                Grúa en
+              <h1 className="font-condensed font-black text-5xl sm:text-6xl md:text-7xl leading-[0.98] uppercase text-ink-900 mb-6 opacity-0 animate-fade-up delay-100">
+                {t.hero.title1}
                 <br />
                 <span className="relative inline-block">
-                  <span className="relative z-10">Madrid</span>
+                  <span className="relative z-10">{t.hero.title2}</span>
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 200 24"
@@ -89,28 +92,27 @@ export default function Home() {
                   </svg>
                 </span>
                 <br />
-                <span className="text-gold">y toda España</span>
+                <span className="text-gold">{t.hero.title3}</span>
               </h1>
 
-              <p className="max-w-lg text-base md:text-lg text-ink-700/60 mb-10 leading-relaxed">
-                Rescate vehicular con respuesta rápida, precio cerrado y factura legal
-                para particulares y empresas.
+              <p className="max-w-lg text-base md:text-lg text-ink-700/60 mb-10 leading-relaxed opacity-0 animate-fade-up delay-200">
+                {t.hero.subtitle}
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3.5 mb-12">
+              <div className="flex flex-col sm:flex-row gap-3.5 mb-12 opacity-0 animate-fade-up delay-300">
                 <a
                   href={`tel:${PHONE_HREF}`}
-                  className="flex items-center justify-center gap-3 bg-ink-900 hover:bg-ink-700 text-sand-100 font-condensed font-black text-lg uppercase tracking-wide rounded-full px-8 py-4 transition-all hover:-translate-y-0.5 shadow-gold"
+                  className="btn-tap flex items-center justify-center gap-3 bg-ink-900 hover:bg-ink-700 text-sand-100 font-condensed font-black text-lg uppercase tracking-wide rounded-full px-8 py-4 shadow-gold"
                 >
-                  <IconPhone className="w-5 h-5" /> Llamar ahora
+                  <IconPhone className="w-5 h-5" /> {t.hero.ctaCall}
                 </a>
                 <a
                   href={`https://wa.me/${WA}?text=${encodeURIComponent("Hola, necesito una grúa urgente en Madrid")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 border-2 border-ink-900/15 hover:border-ink-900/40 text-ink-900 font-condensed font-black text-lg uppercase tracking-wide rounded-full px-8 py-4 transition-all"
+                  className="btn-tap flex items-center justify-center gap-3 border-2 border-ink-900/15 hover:border-ink-900/40 text-ink-900 font-condensed font-black text-lg uppercase tracking-wide rounded-full px-8 py-4"
                 >
-                  <IconWhatsApp className="w-5 h-5 text-whatsapp" /> WhatsApp
+                  <IconWhatsApp className="w-5 h-5 text-whatsapp" /> {t.hero.ctaWhatsapp}
                 </a>
               </div>
 
@@ -143,7 +145,7 @@ export default function Home() {
 
               {/* Grúa sobre la ruta */}
               <div className="absolute left-[34%] top-[52%] -translate-x-1/2 -translate-y-1/2 rotate-[-8deg]">
-                <div className="w-16 h-16 rounded-2xl bg-ink-900 flex items-center justify-center text-gold-light shadow-panel">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-gold-light shadow-panel" style={{ backgroundColor: "#1A1208" }}>
                   <IconTruck className="w-8 h-8" />
                 </div>
               </div>
@@ -173,15 +175,19 @@ export default function Home() {
       </section>
 
       {/* ===== SERVICIOS — ink-900 (oscuro, el más profundo) ===== */}
-      <section id="servicios" className="py-24 sm:py-28 bg-ink-900">
-        <div className="max-w-container mx-auto px-5">
+      <section id="servicios" className="py-24 sm:py-28 surface-1 relative overflow-hidden">
+        <div className="orb-field">
+          <div className="orb orb-gold w-96 h-96 -top-20 -left-20" />
+          <div className="orb orb-amber w-80 h-80 bottom-0 right-0" />
+        </div>
+        <div className="max-w-container mx-auto px-5 relative z-10">
           <Reveal>
             <div className="max-w-2xl mb-16">
               <p className="text-gold-dark text-xs font-bold uppercase tracking-[4px] mb-3">Lo que hacemos</p>
-              <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase text-sand-100">
+              <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase on-surface">
                 Nuestros <span className="text-gold">servicios</span>
               </h2>
-              <p className="mt-4 text-sand-100/50">
+              <p className="mt-4 on-surface/50">
                 Desde una avería simple hasta el rescate en autopista — cubrimos cualquier situación, en cualquier punto de España.
               </p>
             </div>
@@ -191,18 +197,18 @@ export default function Home() {
             {SERVICIOS.map((s, i) => (
               <Reveal key={s.title} delay={i * 80} className={s.big ? "md:col-span-2" : ""}>
                 <article
-                  className={`h-full bg-ink-800 border border-sand-100/10 hover:border-gold/40 rounded-2xl p-7 sm:p-8 transition-all hover:-translate-y-1 group ${s.big ? "sm:flex sm:items-center sm:gap-8" : ""}`}
+                  className={`glass-1 glass-hover h-full rounded-2xl p-7 sm:p-8 transition-all hover:-translate-y-1 group ${s.big ? "sm:flex sm:items-center sm:gap-8" : ""}`}
                   aria-label={s.kw}
                 >
                   <div className={s.big ? "sm:w-1/3" : ""}>
-                    <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/25 flex items-center justify-center text-gold mb-5">
+                    <div className="icon-chip glass-1 w-12 h-12 !rounded-xl text-gold mb-5">
                       <s.Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="font-condensed font-bold text-xl sm:text-2xl uppercase text-gold-light mb-3 group-hover:text-gold transition-colors">
+                    <h3 className="font-condensed font-bold text-xl sm:text-2xl uppercase on-surface-heading mb-3 group-hover:text-gold transition-colors">
                       {s.title}
                     </h3>
                   </div>
-                  <p className={`text-sand-100/50 text-sm leading-relaxed ${s.big ? "sm:w-2/3" : ""}`}>{s.desc}</p>
+                  <p className={`on-surface/50 text-sm leading-relaxed ${s.big ? "sm:w-2/3" : ""}`}>{s.desc}</p>
                 </article>
               </Reveal>
             ))}
@@ -211,8 +217,12 @@ export default function Home() {
       </section>
 
       {/* ===== BATERÍAS — sand-100 (claro, sección de negocio propia) ===== */}
-      <section id="baterias" className="py-24 sm:py-28 bg-sand-100">
-        <div className="max-w-container mx-auto px-5">
+      <section id="baterias" className="py-24 sm:py-28 bg-sand-100 relative overflow-hidden">
+        <div className="orb-field">
+          <div className="orb orb-gold w-96 h-96 top-0 -right-20" style={{ opacity: 0.2 }} />
+          <div className="orb orb-teal w-80 h-80 bottom-0 left-0" style={{ opacity: 0.15 }} />
+        </div>
+        <div className="max-w-container mx-auto px-5 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
             <Reveal>
               <p className="text-gold-dark text-xs font-bold uppercase tracking-[4px] mb-3">También hacemos esto</p>
@@ -250,8 +260,8 @@ export default function Home() {
                   { Icon: IconTag, title: "Precio por WhatsApp", desc: "Consulta el precio exacto de cada modelo al instante." },
                   { Icon: IconShield, title: "Todas las marcas", desc: "Amplio catálogo filtrable por marca y amperaje." },
                 ].map((f) => (
-                  <div key={f.title} className="bg-sand-200 border border-ink-900/10 rounded-2xl p-5">
-                    <div className="w-10 h-10 rounded-lg bg-gold/10 border border-gold/25 flex items-center justify-center text-gold-dark mb-3">
+                  <div key={f.title} className="glass-1-dark rounded-2xl p-5">
+                    <div className="icon-chip glass-1 w-10 h-10 !rounded-lg text-gold-dark mb-3">
                       <f.Icon className="w-5 h-5" />
                     </div>
                     <h3 className="font-condensed font-bold text-sm text-ink-900 uppercase mb-1">{f.title}</h3>
@@ -290,14 +300,14 @@ export default function Home() {
             </Reveal>
 
             <Reveal delay={120}>
-              <div className="bg-sand-100 border border-ink-900/10 rounded-2xl p-7 sm:p-8 space-y-6">
+              <div className="glass-1-dark rounded-2xl p-7 sm:p-8 space-y-6">
                 {[
                   { Icon: IconPin, title: "Madrid Capital", time: "15–25 minutos" },
                   { Icon: IconRoute, title: "Comunidad de Madrid", time: "25–45 minutos" },
                   { Icon: IconShield, title: "Resto de España", time: "Servicio coordinado" },
                 ].map((z) => (
                   <div key={z.title} className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/25 flex items-center justify-center text-gold-dark flex-shrink-0">
+                    <div className="icon-chip glass-1-dark w-10 h-10 text-gold-dark flex-shrink-0">
                       <z.Icon className="w-4.5 h-4.5" />
                     </div>
                     <div>
@@ -324,11 +334,15 @@ export default function Home() {
       </section>
 
       {/* ===== POR QUÉ LUAIDESA — ink-800 (oscuro, matiz distinto) ===== */}
-      <section className="py-24 sm:py-28 bg-ink-800">
-        <div className="max-w-container mx-auto px-5">
+      <section className="py-24 sm:py-28 surface-2 relative overflow-hidden">
+        <div className="orb-field">
+          <div className="orb orb-teal w-96 h-96 top-0 right-1/4" />
+          <div className="orb orb-gold w-72 h-72 bottom-0 left-0" />
+        </div>
+        <div className="max-w-container mx-auto px-5 relative z-10">
           <Reveal>
             <p className="text-gold-dark text-xs font-bold uppercase tracking-[4px] mb-3 text-center">Nuestra diferencia</p>
-            <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase text-sand-100 mb-16 text-center">
+            <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase on-surface mb-16 text-center">
               Por qué elegirnos
             </h2>
           </Reveal>
@@ -339,12 +353,12 @@ export default function Home() {
               { Icon: IconTag, title: "Precio cerrado", desc: "Te decimos el precio antes de ir. Sin sorpresas al llegar, sin costes ocultos al finalizar." },
             ].map((item, i) => (
               <Reveal key={item.title} delay={i * 80}>
-                <div className="h-full bg-ink-900 border border-sand-100/10 rounded-2xl p-8">
-                  <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/25 flex items-center justify-center text-gold mb-6">
+                <div className="glass-1 glass-hover h-full rounded-2xl p-8">
+                  <div className="icon-chip glass-1 w-12 h-12 !rounded-xl text-gold mb-6">
                     <item.Icon className="w-6 h-6" />
                   </div>
-                  <h3 className="font-condensed font-black text-2xl text-gold-light uppercase mb-3">{item.title}</h3>
-                  <p className="text-sand-100/50 text-sm leading-relaxed">{item.desc}</p>
+                  <h3 className="font-condensed font-black text-2xl on-surface-heading uppercase mb-3">{item.title}</h3>
+                  <p className="on-surface/50 text-sm leading-relaxed">{item.desc}</p>
                 </div>
               </Reveal>
             ))}
@@ -363,12 +377,12 @@ export default function Home() {
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 relative">
             {PROCESO.map((p, i) => (
-              <Reveal key={p.n} delay={i * 100} className="relative">
+              <Reveal key={p.n} delay={i * 100} className="glass-1-dark relative rounded-2xl p-6">
                 <span className="font-mono text-sm text-gold-dark tracking-widest">{p.n}</span>
                 <h3 className="font-condensed font-black text-2xl text-ink-900 uppercase mt-3 mb-3">{p.title}</h3>
                 <p className="text-ink-700/55 text-sm leading-relaxed">{p.desc}</p>
                 {i < PROCESO.length - 1 && (
-                  <div className="hidden md:block absolute top-2 right-[-24px] w-12 h-px bg-gold/30" />
+                  <div className="hidden md:block absolute top-8 right-[-24px] w-12 h-px bg-gold/30" />
                 )}
               </Reveal>
             ))}
@@ -377,51 +391,55 @@ export default function Home() {
       </section>
 
       {/* ===== FORMULARIO DE CONTACTO — ink-900 (oscuro) ===== */}
-      <section id="contacto" className="py-24 sm:py-28 bg-ink-900">
-        <div className="max-w-container mx-auto px-5">
+      <section id="contacto" className="py-24 sm:py-28 surface-1 relative overflow-hidden">
+        <div className="orb-field">
+          <div className="orb orb-rose w-96 h-96 -bottom-24 -right-24" />
+          <div className="orb orb-gold w-80 h-80 top-0 left-1/3" />
+        </div>
+        <div className="max-w-container mx-auto px-5 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
             <Reveal>
               <p className="text-gold-dark text-xs font-bold uppercase tracking-[4px] mb-3">Contacto</p>
-              <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase text-sand-100 mb-6">
+              <h2 className="font-condensed font-black text-4xl sm:text-5xl md:text-6xl uppercase on-surface mb-6">
                 Solicita tu <span className="text-gold">servicio</span>
               </h2>
-              <p className="text-sand-100/55 leading-relaxed mb-8 max-w-md">
+              <p className="on-surface/55 leading-relaxed mb-8 max-w-md">
                 Rellena el formulario y te llamamos en minutos. Si es urgente, usa el botón de llamada directa.
               </p>
 
               <div className="space-y-3.5 max-w-md">
                 <a
                   href={`tel:${PHONE_HREF}`}
-                  className="flex items-center gap-4 bg-ink-800 border border-gold/20 hover:border-gold rounded-xl px-5 py-4 transition-colors group"
+                  className="glass-1 glass-hover flex items-center gap-4 rounded-xl px-5 py-4 group"
                 >
-                  <div className="w-10 h-10 bg-gold/10 rounded-lg flex items-center justify-center text-gold shrink-0">
+                  <div className="icon-chip glass-1 w-10 h-10 !rounded-lg text-gold shrink-0">
                     <IconPhone className="w-4.5 h-4.5" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-sand-100/35 uppercase tracking-wider">Llamada directa · 24h</p>
-                    <p className="text-gold-light font-semibold">{PHONE}</p>
+                    <p className="text-[11px] on-surface/35 uppercase tracking-wider">Llamada directa · 24h</p>
+                    <p className="on-surface-heading font-semibold">{PHONE}</p>
                   </div>
                 </a>
                 <a
                   href={`https://wa.me/${WA}?text=${encodeURIComponent("Hola, quiero solicitar un servicio de grúa")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 bg-ink-800 border border-sand-100/10 hover:border-whatsapp/50 rounded-xl px-5 py-4 transition-colors"
+                  className="glass-1 glass-hover flex items-center gap-4 rounded-xl px-5 py-4"
                 >
-                  <div className="w-10 h-10 bg-whatsapp/15 rounded-lg flex items-center justify-center text-whatsapp shrink-0">
+                  <div className="icon-chip glass-1 w-10 h-10 !rounded-lg text-whatsapp shrink-0">
                     <IconWhatsApp className="w-4.5 h-4.5" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-sand-100/35 uppercase tracking-wider">WhatsApp</p>
-                    <p className="text-sand-100 font-semibold">Escríbenos ahora</p>
+                    <p className="text-[11px] on-surface/35 uppercase tracking-wider">WhatsApp</p>
+                    <p className="on-surface font-semibold">Escríbenos ahora</p>
                   </div>
                 </a>
               </div>
             </Reveal>
 
             <Reveal delay={120}>
-              <div className="bg-ink-800 border border-sand-100/10 rounded-2xl p-6 md:p-8">
-                <h3 className="font-condensed font-bold text-xl text-gold-light uppercase mb-6">
+              <div className="glass-3 rounded-2xl p-6 md:p-8">
+                <h3 className="font-condensed font-bold text-xl on-surface-heading uppercase mb-6">
                   Formulario de contacto
                 </h3>
                 <LeadForm />
@@ -445,7 +463,7 @@ export default function Home() {
           <div className="space-y-3">
             {FAQ.map((item, i) => (
               <Reveal key={item.q} delay={Math.min(i * 40, 200)}>
-                <details className="group bg-sand-100 border border-ink-900/10 hover:border-gold/40 rounded-xl overflow-hidden">
+                <details className="group glass-1-dark glass-hover rounded-xl overflow-hidden">
                   <summary className="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer text-ink-900 font-semibold list-none text-[15px]">
                     <span>{item.q}</span>
                     <IconChevronDown className="w-4 h-4 text-gold-dark shrink-0 group-open:rotate-180 transition-transform" />
@@ -456,6 +474,40 @@ export default function Home() {
                 </details>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CTA final — repite la llamada a la acción antes del footer ===== */}
+      <section className="py-20 surface-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(201,162,39,0.15)_0%,transparent_60%)]" />
+        <div className="orb-field">
+          <div className="orb orb-gold w-[28rem] h-[28rem] -top-40 left-1/4" />
+          <div className="orb orb-rose w-80 h-80 bottom-0 right-10" />
+        </div>
+        <div className="relative z-10 max-w-container mx-auto px-5">
+          <div className="glass rounded-3xl px-6 sm:px-12 py-12 sm:py-14 text-center max-w-3xl mx-auto">
+            <h2 className="font-condensed font-black text-3xl sm:text-4xl uppercase on-surface mb-4">
+              {t.ctaFinal.title1} <span className="text-gold">{t.ctaFinal.title2}</span>
+            </h2>
+            <p className="on-surface/50 max-w-lg mx-auto mb-8">
+              {t.ctaFinal.subtitle}
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5">
+              <a
+                href={`tel:${PHONE_HREF}`}
+                className="btn-tap flex items-center justify-center gap-2.5 bg-gold hover:bg-gold-light text-ink-900 font-condensed font-black text-base uppercase tracking-wide rounded-full px-7 py-3.5"
+              >
+                <IconPhone className="w-4 h-4" /> {PHONE}
+              </a>
+              <a
+                href={`https://wa.me/${WA}?text=${encodeURIComponent("Hola, necesito ayuda con mi coche")}`}
+                target="_blank" rel="noopener noreferrer"
+                className="btn-tap flex items-center justify-center gap-2.5 border-2 border-gold/30 hover:border-gold on-surface font-condensed font-black text-base uppercase tracking-wide rounded-full px-7 py-3.5"
+              >
+                <IconWhatsApp className="w-4 h-4 text-whatsapp" /> WhatsApp
+              </a>
+            </div>
           </div>
         </div>
       </section>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { IconChevronDown } from "@/components/icons";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.luaidesa.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gruasluaidesa.com";
 
 export interface Miga {
   label: string;

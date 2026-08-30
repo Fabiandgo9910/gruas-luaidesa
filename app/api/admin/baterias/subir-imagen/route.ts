@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getSupabaseAdmin, slugify } from "@/lib/supabase";
+import { rateLimit, obtenerIp } from "@/lib/rate-limit";
 
 const BUCKET = "baterias-imagenes";
 const TIPOS_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -41,6 +42,10 @@ async function asegurarBucket(supabase: ReturnType<typeof getSupabaseAdmin>) {
 export async function POST(req: NextRequest) {
   const { response } = await requireAdmin();
   if (response) return response;
+
+  if (!rateLimit(`subir-imagen:${obtenerIp(req)}`, 30, 60_000)) {
+    return NextResponse.json({ error: "Demasiadas subidas seguidas. Espera un momento." }, { status: 429 });
+  }
 
   try {
     const formData = await req.formData();
